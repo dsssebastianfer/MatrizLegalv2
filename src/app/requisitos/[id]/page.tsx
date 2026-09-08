@@ -325,89 +325,91 @@ export default async function RequisitoDetallePage({
       )}
 
       <section>
-        <h2 className="section-heading text-lg mb-3">Histórico de evaluaciones</h2>
-        {requisito.evaluaciones.length === 0 ? (
-          <p className="text-sm text-black/60 dark:text-white/60 mb-4">Todavía no se ha registrado ninguna evaluación.</p>
-        ) : (
-          <div className="overflow-x-auto mb-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-black/60 dark:text-white/60 border-b border-black/10 dark:border-white/10">
-                  <th className="py-1.5 pr-3 font-medium">Fecha</th>
-                  <th className="py-1.5 pr-3 font-medium">Estado</th>
-                  <th className="py-1.5 pr-3 font-medium">Evidencia</th>
-                  <th className="py-1.5 pr-3 font-medium">Responsable</th>
-                  <th className="py-1.5 pr-3 font-medium">Registrado por</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requisito.evaluaciones.map((ev) => (
-                  <tr key={ev.id} className="border-b border-black/5 dark:border-white/10 last:border-0 align-top">
-                    <td className="py-2 pr-3 whitespace-nowrap">{formatearFecha(ev.fecha)}</td>
-                    <td className="py-2 pr-3">
-                      <Badge className={COLOR_ESTADO_EVALUACION[ev.estado]}>
-                        {ETIQUETA_ESTADO_EVALUACION[ev.estado]}
-                      </Badge>
-                    </td>
-                    <td className="py-2 pr-3">{ev.evidencia ?? "—"}</td>
-                    <td className="py-2 pr-3">{ev.responsable ?? "—"}</td>
-                    <td className="py-2 pr-3">{ev.usuario.nombre}</td>
+        <h2 className="section-heading text-lg mb-3">Evaluación de Cumplimiento</h2>
+        <div className="rounded-lg border-2 border-teal-600/50 bg-teal-600/5 p-4 dark:border-teal-400/40 dark:bg-teal-400/5">
+          {requisito.evaluaciones.length === 0 ? (
+            <p className="text-sm text-black/60 dark:text-white/60 mb-4">Todavía no se ha registrado ninguna evaluación.</p>
+          ) : (
+            <div className="overflow-x-auto mb-4">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-black/60 dark:text-white/60 border-b border-black/10 dark:border-white/10">
+                    <th className="py-1.5 pr-3 font-medium">Fecha</th>
+                    <th className="py-1.5 pr-3 font-medium">Estado</th>
+                    <th className="py-1.5 pr-3 font-medium">Evidencia</th>
+                    <th className="py-1.5 pr-3 font-medium">Responsable</th>
+                    <th className="py-1.5 pr-3 font-medium">Registrado por</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        <details className="text-sm">
-          <summary className="cursor-pointer font-medium">Registrar nueva evaluación</summary>
-          <form action={registrarEvaluacionAction} className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 max-w-2xl">
-            <input type="hidden" name="requisitoId" value={requisito.id} />
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-black/60 dark:text-white/60">Estado</span>
-              <select name="estado" required className="field">
-                {Object.values(EstadoEvaluacion).map((e) => (
-                  <option key={e} value={e}>
-                    {ETIQUETA_ESTADO_EVALUACION[e]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-black/60 dark:text-white/60">Fecha</span>
-              <input
-                type="date"
-                name="fecha"
-                required
-                defaultValue={new Date().toISOString().slice(0, 10)}
-                className="field"
-              />
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-black/60 dark:text-white/60">Responsable</span>
-              <input type="text" name="responsable" className="field" />
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-black/60 dark:text-white/60">Registrado por</span>
-              <select name="usuarioId" required className="field">
-                {usuarios.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.nombre}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 sm:col-span-2">
-              <span className="text-xs text-black/60 dark:text-white/60">Evidencia</span>
-              <textarea name="evidencia" rows={3} className="field" />
-            </label>
-            <div className="sm:col-span-2">
-              <button type="submit" className="btn-primary">
-                Guardar evaluación
-              </button>
+                </thead>
+                <tbody>
+                  {requisito.evaluaciones.map((ev) => (
+                    <tr key={ev.id} className="border-b border-black/5 dark:border-white/10 last:border-0 align-top">
+                      <td className="py-2 pr-3 whitespace-nowrap">{formatearFecha(ev.fecha)}</td>
+                      <td className="py-2 pr-3">
+                        <Badge className={COLOR_ESTADO_EVALUACION[ev.estado]}>
+                          {ETIQUETA_ESTADO_EVALUACION[ev.estado]}
+                        </Badge>
+                      </td>
+                      <td className="py-2 pr-3">{ev.evidencia ?? "—"}</td>
+                      <td className="py-2 pr-3">{ev.responsable ?? "—"}</td>
+                      <td className="py-2 pr-3">{ev.usuario.nombre}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </form>
-        </details>
+          )}
+
+          <details className="text-sm">
+            <summary className="cursor-pointer font-medium">Registrar nueva evaluación</summary>
+            <form action={registrarEvaluacionAction} className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 max-w-2xl">
+              <input type="hidden" name="requisitoId" value={requisito.id} />
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-black/60 dark:text-white/60">Estado</span>
+                <select name="estado" required className="field">
+                  {Object.values(EstadoEvaluacion).map((e) => (
+                    <option key={e} value={e}>
+                      {ETIQUETA_ESTADO_EVALUACION[e]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-black/60 dark:text-white/60">Fecha</span>
+                <input
+                  type="date"
+                  name="fecha"
+                  required
+                  defaultValue={new Date().toISOString().slice(0, 10)}
+                  className="field"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-black/60 dark:text-white/60">Responsable</span>
+                <input type="text" name="responsable" className="field" />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-black/60 dark:text-white/60">Registrado por</span>
+                <select name="usuarioId" required className="field">
+                  {usuarios.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.nombre}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 sm:col-span-2">
+                <span className="text-xs text-black/60 dark:text-white/60">Evidencia</span>
+                <textarea name="evidencia" rows={3} className="field" />
+              </label>
+              <div className="sm:col-span-2">
+                <button type="submit" className="btn-primary">
+                  Guardar evaluación
+                </button>
+              </div>
+            </form>
+          </details>
+        </div>
       </section>
 
       <section>
