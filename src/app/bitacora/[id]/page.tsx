@@ -41,7 +41,7 @@ export default async function EditarCambioPage({ params }: { params: Promise<{ i
             <option value="">Ninguno (no modifica una norma de la Matriz)</option>
             {requisitos.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.codigoNormativo}
+                #{r.legacyId ?? "—"} — {r.codigoNormativo}
               </option>
             ))}
           </select>

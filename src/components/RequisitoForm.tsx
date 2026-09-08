@@ -17,6 +17,7 @@ interface Bloque {
 
 interface NormaDisponible {
   id: string;
+  legacyId: number | null;
   codigoNormativo: string;
 }
 
@@ -168,7 +169,7 @@ export function RequisitoForm({
           <option value="">Ninguna (norma principal)</option>
           {normasDisponibles.map((n) => (
             <option key={n.id} value={n.id}>
-              {n.codigoNormativo}
+              #{n.legacyId ?? "—"} — {n.codigoNormativo}
             </option>
           ))}
         </select>

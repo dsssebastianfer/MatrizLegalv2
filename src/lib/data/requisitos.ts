@@ -296,7 +296,7 @@ export async function updateContenidoAplicabilidad(id: string, data: ContenidoAp
 export async function listRequisitosParaSelector() {
   return prisma.requisito.findMany({
     where: { eliminadoEn: null },
-    select: { id: true, codigoNormativo: true, nombreOficial: true },
+    select: { id: true, legacyId: true, codigoNormativo: true, nombreOficial: true },
     orderBy: { legacyId: "asc" },
   });
 }
