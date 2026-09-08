@@ -1,20 +1,25 @@
 import { cookies } from "next/headers";
 import { getUsuario } from "@/lib/data/usuarios";
+import { COOKIE_ACTUANDO_COMO } from "@/lib/cookieNames";
 
-// No hay login en la app: este cookie recuerda qué usuario eligió "actuar
-// como" en el selector de la barra superior, para poder atribuirle los
-// cambios que haga (historial de cambios) sin pedirle el nombre en cada
-// formulario.
-export const COOKIE_ACTUANDO_COMO = "actuando_como";
+export { COOKIE_ACTUANDO_COMO };
 
+// Este cookie lo fija el login (ver src/lib/actions/auth.ts) tras validar el
+// correo contra la tabla de usuarios. src/proxy.ts exige que exista para
+// dejar pasar cualquier ruta salvo /login; acá solo lo leemos para saber a
+// quién atribuirle los cambios que haga (historial de cambios).
 export async function getUsuarioActualId(): Promise<string | null> {
   const store = await cookies();
   return store.get(COOKIE_ACTUANDO_COMO)?.value || null;
 }
 
-export async function getUsuarioActualNombre(): Promise<string> {
+export async function getUsuarioActual() {
   const id = await getUsuarioActualId();
-  if (!id) return "Sin identificar";
-  const usuario = await getUsuario(id);
+  if (!id) return null;
+  return getUsuario(id);
+}
+
+export async function getUsuarioActualNombre(): Promise<string> {
+  const usuario = await getUsuarioActual();
   return usuario?.nombre ?? "Sin identificar";
 }

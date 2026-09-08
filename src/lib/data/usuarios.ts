@@ -12,6 +12,12 @@ export async function getUsuario(id: string) {
   return prisma.usuario.findUnique({ where: { id } });
 }
 
+// El correo se guarda siempre en minúsculas (ver createUsuarioAction), así
+// que la búsqueda para el login normaliza igual y no necesita "mode: insensitive".
+export async function getUsuarioActivoPorEmail(email: string) {
+  return prisma.usuario.findFirst({ where: { email: email.trim().toLowerCase(), activo: true } });
+}
+
 export async function createUsuario(data: { nombre: string; email?: string | null }) {
   return prisma.usuario.create({ data });
 }

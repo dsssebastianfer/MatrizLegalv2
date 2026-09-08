@@ -12,8 +12,9 @@ export default async function UsuariosPage() {
       <div>
         <h1 className="text-2xl font-semibold mb-1">Usuarios</h1>
         <p className="text-sm text-black/60 dark:text-white/60">
-          Se usan para atribuir evaluaciones (&quot;quién evaluó qué&quot;). Todavía no hay login: cualquiera con
-          acceso a esta app puede evaluar a nombre de un usuario registrado aquí.
+          El correo es lo que le permite a la persona entrar a la app (inicia sesión solo con su correo, sin
+          contraseña) y también se usa para atribuir evaluaciones y cambios (&quot;quién hizo qué&quot;).
+          Desactivar a alguien le cierra el acceso.
         </p>
       </div>
 
@@ -26,7 +27,7 @@ export default async function UsuariosPage() {
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-xs text-black/60 dark:text-white/60">Email</span>
-            <input type="email" name="email" className="field" />
+            <input type="email" name="email" required className="field" />
           </label>
           <div className="sm:col-span-2">
             <button type="submit" className="btn-primary">
