@@ -5,7 +5,11 @@ import { flattenIndice, getIndiceNormas, getRequisitoDetalle, listBloquesTematic
 import { listUsuariosActivos } from "@/lib/data/usuarios";
 import { listHistorial } from "@/lib/data/historial";
 import { registrarEvaluacionAction } from "@/lib/actions/evaluaciones";
-import { updateDatosGeneralesAction, updateContenidoAplicabilidadAction } from "@/lib/actions/requisitos";
+import {
+  updateDatosGeneralesAction,
+  updateContenidoAplicabilidadAction,
+  restaurarRequisitoAction,
+} from "@/lib/actions/requisitos";
 import { Badge } from "@/components/Badge";
 import { Tooltip } from "@/components/Tooltip";
 import { IndiceNormas } from "@/components/IndiceNormas";
@@ -108,6 +112,21 @@ export default async function RequisitoDetallePage({
             <IndiceNormas bloques={indiceNormas} />
           </div>
         </div>
+
+        {requisito.eliminadoEn && (
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm dark:border-red-900/50 dark:bg-red-950/30">
+            <span className="text-red-800 dark:text-red-300">
+              Esta norma fue eliminada el {formatearFecha(requisito.eliminadoEn)}. No aparece en la Matriz ni en los
+              selectores.
+            </span>
+            <form action={restaurarRequisitoAction.bind(null, requisito.id)}>
+              <button type="submit" className="btn-secondary text-sm whitespace-nowrap">
+                Restaurar
+              </button>
+            </form>
+          </div>
+        )}
+
         <h1 className="text-2xl font-semibold mt-2">
           {requisito.legacyId && (
             <span className="text-black/40 dark:text-white/40 mr-2">#{requisito.legacyId}</span>

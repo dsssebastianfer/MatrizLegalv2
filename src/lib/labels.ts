@@ -134,12 +134,16 @@ export const ETIQUETA_TIPO_EVENTO_HISTORIAL: Record<TipoEventoHistorial, string>
   [TipoEventoHistorial.CreacionRequisito]: "Norma creada",
   [TipoEventoHistorial.EdicionRequisito]: "Norma editada",
   [TipoEventoHistorial.RegistroEvaluacion]: "Revisión registrada",
+  [TipoEventoHistorial.EliminacionRequisito]: "Norma eliminada",
+  [TipoEventoHistorial.RestauracionRequisito]: "Norma restaurada",
 };
 
 export const COLOR_TIPO_EVENTO_HISTORIAL: Record<TipoEventoHistorial, string> = {
   [TipoEventoHistorial.CreacionRequisito]: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300",
   [TipoEventoHistorial.EdicionRequisito]: "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-300",
   [TipoEventoHistorial.RegistroEvaluacion]: "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300",
+  [TipoEventoHistorial.EliminacionRequisito]: "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300",
+  [TipoEventoHistorial.RestauracionRequisito]: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300",
 };
 
 // Traduce el nombre técnico de cada campo editable de un Requisito al texto

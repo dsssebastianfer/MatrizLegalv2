@@ -10,9 +10,16 @@ import {
   updateContenidoAplicabilidad,
   getRequisitoRaw,
   getAreasRequisito,
+  softDeleteRequisito,
+  restoreRequisito,
   type RequisitoFormData,
 } from "@/lib/data/requisitos";
-import { registrarCreacionRequisito, registrarEdicionRequisito } from "@/lib/historial";
+import {
+  registrarCreacionRequisito,
+  registrarEdicionRequisito,
+  registrarEliminacionRequisito,
+  registrarRestauracionRequisito,
+} from "@/lib/historial";
 import { getUsuarioActualNombre } from "@/lib/actuandoComo";
 
 function leerCampos(formData: FormData): RequisitoFormData {
@@ -82,6 +89,30 @@ export async function updateDatosGeneralesAction(id: string, formData: FormData)
   await registrarEdicionRequisito(antes, despues, usuarioNombre, {
     campos: ["bloqueTematicoId", "rangoJuridico", "frecuenciaRevision", "fuenteAVerificar", "organismoFiscalizador"],
   });
+  revalidatePath("/matriz");
+  revalidatePath(`/requisitos/${id}`);
+  revalidatePath("/historial");
+  redirect(`/requisitos/${id}`);
+}
+
+export async function eliminarRequisitoAction(id: string, formData: FormData) {
+  const justificacion = String(formData.get("justificacion") ?? "").trim();
+  if (!justificacion) {
+    throw new Error("La justificación es obligatoria para eliminar una norma.");
+  }
+  const requisito = await softDeleteRequisito(id);
+  const usuarioNombre = await getUsuarioActualNombre();
+  await registrarEliminacionRequisito(requisito, justificacion, usuarioNombre);
+  revalidatePath("/matriz");
+  revalidatePath(`/requisitos/${id}`);
+  revalidatePath("/historial");
+  redirect("/matriz");
+}
+
+export async function restaurarRequisitoAction(id: string) {
+  const requisito = await restoreRequisito(id);
+  const usuarioNombre = await getUsuarioActualNombre();
+  await registrarRestauracionRequisito(requisito, usuarioNombre);
   revalidatePath("/matriz");
   revalidatePath(`/requisitos/${id}`);
   revalidatePath("/historial");

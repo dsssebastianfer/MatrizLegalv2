@@ -69,9 +69,11 @@ enum ImpactoCambio {
 }
 
 enum TipoEventoHistorial {
-  CreacionRequisito   @map("Creación de norma")
-  EdicionRequisito    @map("Edición de norma")
-  RegistroEvaluacion  @map("Registro de evaluación")
+  CreacionRequisito     @map("Creación de norma")
+  EdicionRequisito      @map("Edición de norma")
+  RegistroEvaluacion    @map("Registro de evaluación")
+  EliminacionRequisito  @map("Eliminación de norma")
+  RestauracionRequisito @map("Restauración de norma")
 }
 
 // ---------- Modelos ----------
@@ -120,6 +122,11 @@ model Requisito {
   normaMadre                Requisito?      @relation("JerarquiaNormativa", fields: [normaMadreId], references: [id])
   normasHijas               Requisito[]     @relation("JerarquiaNormativa")
   tipoRelacion              TipoRelacion    @default(Principal) @map("tipo_relacion")
+  // Borrado suave: si tiene fecha, la norma se oculta de la Matriz y de los
+  // selectores, pero la fila y su historial (evaluaciones, cambios, historial
+  // de cambios) se conservan intactos — se puede restaurar (ver
+  // restaurarRequisitoAction en src/lib/actions/requisitos.ts).
+  eliminadoEn               DateTime?       @map("eliminado_en")
   createdAt                 DateTime        @default(now()) @map("created_at")
   updatedAt                 DateTime        @updatedAt @map("updated_at")
 

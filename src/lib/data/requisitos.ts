@@ -78,6 +78,7 @@ export async function getMatriz(filtros: FiltrosMatriz = {}): Promise<BloqueConR
 
   const requisitos = await prisma.requisito.findMany({
     where: {
+      eliminadoEn: null,
       estado: filtros.estados && filtros.estados.length > 0 ? { in: filtros.estados } : undefined,
       prioridad: filtros.prioridad,
       nivelVigilancia: filtros.nivelVigilancia,
@@ -294,7 +295,16 @@ export async function updateContenidoAplicabilidad(id: string, data: ContenidoAp
 
 export async function listRequisitosParaSelector() {
   return prisma.requisito.findMany({
+    where: { eliminadoEn: null },
     select: { id: true, codigoNormativo: true, nombreOficial: true },
     orderBy: { legacyId: "asc" },
   });
+}
+
+export async function softDeleteRequisito(id: string) {
+  return prisma.requisito.update({ where: { id }, data: { eliminadoEn: new Date() } });
+}
+
+export async function restoreRequisito(id: string) {
+  return prisma.requisito.update({ where: { id }, data: { eliminadoEn: null } });
 }

@@ -139,3 +139,27 @@ export async function registrarEvaluacionHistorial(
     resumen: `Registró una revisión de la norma «${requisito.codigoNormativo}»: ${ETIQUETA_ESTADO_EVALUACION[estado]}.`,
   });
 }
+
+export async function registrarEliminacionRequisito(
+  requisito: Requisito,
+  justificacion: string,
+  usuarioNombre: string,
+) {
+  await crearHistorial({
+    tipo: TipoEventoHistorial.EliminacionRequisito,
+    requisitoId: requisito.id,
+    codigoNormativo: requisito.codigoNormativo,
+    usuarioNombre,
+    resumen: `Eliminó la norma «${requisito.codigoNormativo}» (${requisito.nombreOficial}). Justificación: ${justificacion}`,
+  });
+}
+
+export async function registrarRestauracionRequisito(requisito: Requisito, usuarioNombre: string) {
+  await crearHistorial({
+    tipo: TipoEventoHistorial.RestauracionRequisito,
+    requisitoId: requisito.id,
+    codigoNormativo: requisito.codigoNormativo,
+    usuarioNombre,
+    resumen: `Restauró la norma «${requisito.codigoNormativo}» (previamente eliminada).`,
+  });
+}
