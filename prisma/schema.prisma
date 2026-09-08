@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Enums ----------
+// @map fija el valor exacto que se guarda en Postgres (con espacios/acentos),
+// mientras el nombre del enum en Prisma se mantiene como identificador válido.
+
+enum Area {
+  Calidad
+  Ambiente
+  SST
+}
+
+enum EstadoRequisito {
+  Aplica
+  NoAplica             @map("No aplica")
+  Derogada
+  EvaluarAplicabilidad @map("Evaluar aplicabilidad")
+}
+
+enum RangoJuridico {
+  Ley
+  DecretoReglamento   @map("Decreto/Reglamento")
+  NormaAdministrativa @map("Norma administrativa")
+}
+
+enum NivelVigilancia {
+  Alto
+  Medio
+  Bajo
+}
+
+enum Prioridad {
+  Baja
+  Media
+  Alta
+  Critica @map("Crítica")
+}
+
+enum TipoRelacion {
+  Principal
+  Modifica
+  Reglamenta
+  Complementa
+  Libro
+  SubParte       @map("Sub-parte")
+  ReemplazadaPor @map("Reemplazada por")
+  Transicion     @map("Transición")
+}
+
+enum EstadoEvaluacion {
+  Cumple
+  CumpleParcialmente @map("Cumple parcialmente")
+  NoCumple           @map("No cumple")
+  NoAplica           @map("No aplica")
+  PorEvaluar         @map("Por evaluar")
+}
+
+enum ImpactoCambio {
+  Si                      @map("Sí")
+  NoAplica                @map("No aplica")
+  AplicacionCondicionada  @map("Aplicación condicionada")
+  AplicacionIndirecta     @map("Aplicación indirecta")
+}
+
+enum TipoEventoHistorial {
+  CreacionRequisito   @map("Creación de norma")
+  EdicionRequisito    @map("Edición de norma")
+  RegistroEvaluacion  @map("Registro de evaluación")
+}
+
+// ---------- Modelos ----------
+
+model Usuario {
+  id        String   @id @default(uuid())
+  nombre    String
+  email     String?  @unique
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  evaluaciones Evaluacion[]
+
+  @@map("usuario")
+}
+
+model BloqueTematico {
+  id     String @id @default(uuid())
+  nombre String @unique
+  orden  Int
+
+  requisitos Requisito[]
+
+  @@map("bloque_tematico")
+}
+
+model Requisito {
+  id                        String          @id @default(uuid())
+  legacyId                  Int?            @unique @map("legacy_id")
+  codigoNormativo           String          @map("codigo_normativo")
+  nombreOficial             String          @map("nombre_oficial")
+  bloqueTematicoId          String          @map("bloque_tematico_id")
+  bloqueTematico            BloqueTematico  @relation(fields: [bloqueTematicoId], references: [id])
+  estado                    EstadoRequisito
+  aplicabilidad             String?         // fundamento de por qué aplica o no (se muestra al pasar el mouse sobre el estado)
+  rangoJuridico              RangoJuridico   @map("rango_juridico")
+  nivelVigilancia           NivelVigilancia @map("nivel_vigilancia")
+  descripcion               String?
+  requisitoArticuloClave    String?         @map("requisito_articulo_clave")
+  fuenteAVerificar          String?         @map("fuente_a_verificar")
+  comoDemostrarCumplimiento String?         @map("como_demostrar_cumplimiento")
+  frecuenciaRevision        String?         @map("frecuencia_revision")
+  organismoFiscalizador     String?         @map("organismo_fiscalizador")
+  prioridad                 Prioridad
+  normaMadreId              String?         @map("norma_madre_id")
+  normaMadre                Requisito?      @relation("JerarquiaNormativa", fields: [normaMadreId], references: [id])
+  normasHijas               Requisito[]     @relation("JerarquiaNormativa")
+  tipoRelacion              TipoRelacion    @default(Principal) @map("tipo_relacion")
+  createdAt                 DateTime        @default(now()) @map("created_at")
+  updatedAt                 DateTime        @updatedAt @map("updated_at")
+
+  areas        RequisitoArea[]
+  evaluaciones Evaluacion[]
+  cambios      CambioNormativo[]
+  historial    HistorialCambio[]
+
+  @@index([bloqueTematicoId])
+  @@index([normaMadreId])
+  @@index([estado])
+  @@index([prioridad])
+  @@index([nivelVigilancia])
+  @@map("requisito")
+}
+
+model RequisitoArea {
+  requisitoId String    @map("requisito_id")
+  requisito   Requisito @relation(fields: [requisitoId], references: [id], onDelete: Cascade)
+  area        Area
+
+  @@id([requisitoId, area])
+  @@map("requisito_area")
+}
+
+// Histórico de cumplimiento: solo se crean filas nuevas (INSERT) desde la app,
+// nunca se actualizan ni se borran. El "estado actual" se calcula tomando la
+// evaluación más reciente por requisito (ver lib/data/evaluaciones.ts).
+model Evaluacion {
+  id          String           @id @default(uuid())
+  requisitoId String           @map("requisito_id")
+  requisito   Requisito        @relation(fields: [requisitoId], references: [id])
+  estado      EstadoEvaluacion
+  evidencia   String?
+  responsable String?
+  fecha       DateTime         @db.Date
+  usuarioId   String           @map("usuario_id")
+  usuario     Usuario          @relation(fields: [usuarioId], references: [id])
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  @@index([requisitoId, fecha])
+  @@map("evaluacion")
+}
+
+model CambioNormativo {
+  id                       String        @id @default(uuid())
+  fecha                    DateTime?     @db.Date
+  tipo                     String?
+  numeroCodigo             String?       @map("numero_codigo")
+  nombre                   String?
+  normaOParteQueActualiza  String?       @map("norma_o_parte_que_actualiza")
+  // Nullable: algunas circulares no modifican ninguna norma que esté hoy en la Matriz
+  // (se registran igual, como evidencia de vigilancia normativa).
+  requisitoBaseId          String?       @map("requisito_base_id")
+  requisitoBase            Requisito?    @relation(fields: [requisitoBaseId], references: [id])
+  queCambio                String?       @map("que_cambio")
+  impacto                  ImpactoCambio
+  nota                     String?
+  createdAt                DateTime      @default(now()) @map("created_at")
+  updatedAt                DateTime      @updatedAt @map("updated_at")
+
+  @@index([requisitoBaseId])
+  @@map("cambio_normativo")
+}
+
+model FuenteVigilancia {
+  id             String    @id @default(uuid())
+  nombre         String
+  url            String?
+  frecuencia     String?
+  responsable    String?
+  ultimaRevision DateTime? @db.Date @map("ultima_revision")
+  notas          String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("fuente_vigilancia")
+}
+
+// Historial de cambios: registro legible para el usuario de qué se hizo, quién
+// lo hizo y (para ediciones) qué campos cambiaron, con su valor anterior y
+// nuevo. Solo se crean filas nuevas (INSERT), nunca se editan ni se borran.
+model HistorialCambio {
+  id              String              @id @default(uuid())
+  tipo            TipoEventoHistorial
+  requisitoId     String?             @map("requisito_id")
+  requisito       Requisito?          @relation(fields: [requisitoId], references: [id])
+  // Copia del código al momento del cambio: sigue siendo legible aunque la
+  // norma se elimine más adelante o el código mismo haya sido lo editado.
+  codigoNormativo String?             @map("codigo_normativo")
+  usuarioNombre   String              @map("usuario_nombre")
+  resumen         String
+  // Para ediciones: lista de { campo, etiqueta, antes, despues }. Null para
+  // creación de norma y registro de evaluación.
+  cambios         Json?
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  @@index([requisitoId])
+  @@index([createdAt])
+  @@map("historial_cambio")
+}

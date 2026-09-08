@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-1 rounded-md bg-teal-600 px-3 py-1.5 text-sm
+      font-medium text-white transition-colors hover:bg-teal-700
+      dark:bg-teal-500 dark:text-neutral-950 dark:hover:bg-teal-400;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-1 rounded-md border border-black/15 px-3 py-1.5
+      text-sm text-black/80 transition-colors hover:border-teal-600/40 hover:bg-teal-600/5 hover:text-teal-700
+      dark:border-white/15 dark:text-white/80 dark:hover:border-teal-400/40 dark:hover:bg-teal-400/10 dark:hover:text-teal-300;
+  }
+
+  .link-accent {
+    @apply text-teal-700 hover:underline dark:text-teal-400;
+  }
+
+  .section-heading {
+    @apply border-l-4 border-teal-600/70 pl-2 font-medium dark:border-teal-400/60;
+  }
+
+  .field {
+    @apply rounded-md border border-black/15 bg-transparent px-2 py-1 outline-none transition-colors
+      focus:border-teal-600 focus:ring-1 focus:ring-teal-600/30
+      dark:border-white/15 dark:focus:border-teal-400 dark:focus:ring-teal-400/30;
+  }
+}
