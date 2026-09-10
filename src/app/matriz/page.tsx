@@ -17,6 +17,7 @@ import {
 import { formatearFecha } from "@/lib/format";
 import { Badge } from "@/components/Badge";
 import { Tooltip } from "@/components/Tooltip";
+import { AcordeonMatriz } from "@/components/AcordeonMatriz";
 
 type UltimaEvaluacion = { estado: EstadoEvaluacion; fecha: Date } | undefined;
 
@@ -235,10 +236,11 @@ export default async function MatrizPage({
         )}
       </form>
 
-      <div className="space-y-8">
-        {matriz.map((bloque) => (
-          <section key={bloque.id}>
-            <h2 className="section-heading text-lg mb-2">{bloque.nombre}</h2>
+      <AcordeonMatriz
+        grupos={matriz.map((bloque) => ({
+          id: bloque.id,
+          nombre: bloque.nombre,
+          contenido: (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -269,14 +271,14 @@ export default async function MatrizPage({
                 </tbody>
               </table>
             </div>
-          </section>
-        ))}
-        {matriz.length === 0 && (
-          <p className="text-sm text-black/60 dark:text-white/60">
-            No hay requisitos que coincidan con estos filtros.
-          </p>
-        )}
-      </div>
+          ),
+        }))}
+      />
+      {matriz.length === 0 && (
+        <p className="text-sm text-black/60 dark:text-white/60">
+          No hay requisitos que coincidan con estos filtros.
+        </p>
+      )}
     </div>
   );
 }
