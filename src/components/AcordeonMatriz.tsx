@@ -9,7 +9,7 @@ export interface GrupoTematico {
 }
 
 export function AcordeonMatriz({ grupos }: { grupos: GrupoTematico[] }) {
-  const [abiertos, setAbiertos] = useState<Set<string>>(new Set());
+  const [abiertos, setAbiertos] = useState<Set<string>>(() => new Set(grupos.map((g) => g.id)));
   const todosAbiertos = grupos.length > 0 && grupos.every((g) => abiertos.has(g.id));
 
   function alternarTodos() {
