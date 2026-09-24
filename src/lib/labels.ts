@@ -41,6 +41,10 @@ export const DESCRIPCION_CONCEPTO = {
     "• Los Riesgos identificados en la Matriz de Riesgos\n" +
     "• Aspectos Ambientales identificados en Matriz de Aspectos Ambientales\n\n" +
     "La identificación de artículos y componentes clave de una norma constituye una orientación para la evaluación del cumplimiento y no reemplaza la revisión del texto oficial vigente de la norma.",
+  requisitoArticuloClave:
+    "Es un puntero orientativo para ubicar rápido la parte más relevante de la norma — no un resumen completo de sus obligaciones. La norma puede tener otros artículos aplicables además del señalado acá, así que esto no reemplaza revisar el texto oficial completo.",
+  comoDemostrarCumplimiento:
+    "Es una sugerencia de qué evidencia suele pedirse, no una lista taxativa ni un reemplazo de la norma. Puede haber otros medios de verificación válidos, y la fiscalización puede exigir más de lo descrito acá — siempre hay que revisar el texto oficial vigente para confirmar qué exige exactamente.",
 } as const;
 
 export const ETIQUETA_ESTADO_REQUISITO: Record<EstadoRequisito, string> = {

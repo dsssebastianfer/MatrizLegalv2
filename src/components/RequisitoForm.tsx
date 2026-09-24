@@ -196,7 +196,9 @@ export function RequisitoForm({
         <textarea name="descripcion" rows={3} defaultValue={valores.descripcion ?? ""} className="field" />
       </label>
       <label className="flex flex-col gap-1 sm:col-span-2">
-        <span className="text-xs text-black/60 dark:text-white/60">Requisito o artículo clave (puntero)</span>
+        <span className="text-xs text-black/60 dark:text-white/60">
+          <Tooltip texto={DESCRIPCION_CONCEPTO.requisitoArticuloClave}>Requisito o artículo clave (orientativo)</Tooltip>
+        </span>
         <input type="text" name="requisitoArticuloClave" defaultValue={valores.requisitoArticuloClave ?? ""} className="field" />
       </label>
       <label className="flex flex-col gap-1 sm:col-span-2">
@@ -204,7 +206,9 @@ export function RequisitoForm({
         <input type="text" name="fuenteAVerificar" defaultValue={valores.fuenteAVerificar ?? ""} className="field" />
       </label>
       <label className="flex flex-col gap-1 sm:col-span-2">
-        <span className="text-xs text-black/60 dark:text-white/60">Cómo demostrar cumplimiento</span>
+        <span className="text-xs text-black/60 dark:text-white/60">
+          <Tooltip texto={DESCRIPCION_CONCEPTO.comoDemostrarCumplimiento}>Cómo demostrar cumplimiento (orientativo)</Tooltip>
+        </span>
         <textarea name="comoDemostrarCumplimiento" rows={2} defaultValue={valores.comoDemostrarCumplimiento ?? ""} className="field" />
       </label>
       <label className="flex flex-col gap-1">

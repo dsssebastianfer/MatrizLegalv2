@@ -268,8 +268,15 @@ export default async function RequisitoDetallePage({
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Campo etiqueta="De qué se trata">{requisito.descripcion}</Campo>
               <Campo etiqueta="Aplicabilidad (por qué aplica o no)">{requisito.aplicabilidad}</Campo>
-              <Campo etiqueta="Requisito o artículo clave">{requisito.requisitoArticuloClave}</Campo>
-              <Campo etiqueta="Cómo demostrar cumplimiento">{requisito.comoDemostrarCumplimiento}</Campo>
+              <Campo etiqueta="Requisito o artículo clave (orientativo)" descripcion={DESCRIPCION_CONCEPTO.requisitoArticuloClave}>
+                {requisito.requisitoArticuloClave}
+              </Campo>
+              <Campo
+                etiqueta="Cómo demostrar cumplimiento (orientativo)"
+                descripcion={DESCRIPCION_CONCEPTO.comoDemostrarCumplimiento}
+              >
+                {requisito.comoDemostrarCumplimiento}
+              </Campo>
             </dl>
           }
           formulario={
@@ -286,7 +293,11 @@ export default async function RequisitoDetallePage({
                 <textarea name="aplicabilidad" rows={2} defaultValue={requisito.aplicabilidad ?? ""} className="field" />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-xs text-black/60 dark:text-white/60">Requisito o artículo clave</span>
+                <span className="text-xs text-black/60 dark:text-white/60">
+                  <Tooltip texto={DESCRIPCION_CONCEPTO.requisitoArticuloClave}>
+                    Requisito o artículo clave (orientativo)
+                  </Tooltip>
+                </span>
                 <input
                   type="text"
                   name="requisitoArticuloClave"
@@ -295,7 +306,11 @@ export default async function RequisitoDetallePage({
                 />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-xs text-black/60 dark:text-white/60">Cómo demostrar cumplimiento</span>
+                <span className="text-xs text-black/60 dark:text-white/60">
+                  <Tooltip texto={DESCRIPCION_CONCEPTO.comoDemostrarCumplimiento}>
+                    Cómo demostrar cumplimiento (orientativo)
+                  </Tooltip>
+                </span>
                 <textarea
                   name="comoDemostrarCumplimiento"
                   rows={2}
