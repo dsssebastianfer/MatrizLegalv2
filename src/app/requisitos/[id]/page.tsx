@@ -363,8 +363,7 @@ export default async function RequisitoDetallePage({
         {requisito.estado === EstadoRequisito.NoAplica ? (
           <div className="rounded-lg border-2 border-gray-300 bg-gray-100 p-4 dark:border-gray-700 dark:bg-gray-500/10">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              No es necesaria evaluación de cumplimiento a normativa no aplicable a la organización. Si esto cambia,
-              actualiza el Estado de la norma con el botón &quot;Editar&quot; de arriba para volver a habilitarla.
+              No es necesaria evaluación de cumplimiento a normativa no aplicable a la organización.
             </p>
           </div>
         ) : (
