@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { EstadoEvaluacion, RangoJuridico } from "@prisma/client";
+import { EstadoEvaluacion, EstadoRequisito, RangoJuridico } from "@prisma/client";
 import { flattenIndice, getIndiceNormas, getRequisitoDetalle, listBloquesTematicos } from "@/lib/data/requisitos";
 import { listUsuariosActivos } from "@/lib/data/usuarios";
 import { listHistorial } from "@/lib/data/historial";
@@ -360,6 +360,14 @@ export default async function RequisitoDetallePage({
 
       <section>
         <h2 className="section-heading text-lg mb-3">Evaluación de Cumplimiento</h2>
+        {requisito.estado === EstadoRequisito.NoAplica ? (
+          <div className="rounded-lg border-2 border-gray-300 bg-gray-100 p-4 dark:border-gray-700 dark:bg-gray-500/10">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              No es necesaria evaluación de cumplimiento a normativa no aplicable a la organización. Si esto cambia,
+              actualiza el Estado de la norma con el botón &quot;Editar&quot; de arriba para volver a habilitarla.
+            </p>
+          </div>
+        ) : (
         <div className="rounded-lg border-2 border-teal-600/50 bg-teal-600/5 p-4 dark:border-teal-400/40 dark:bg-teal-400/5">
           {requisito.evaluaciones.length === 0 ? (
             <p className="text-sm text-black/60 dark:text-white/60 mb-4">Todavía no se ha registrado ninguna evaluación.</p>
@@ -444,6 +452,7 @@ export default async function RequisitoDetallePage({
             </form>
           </details>
         </div>
+        )}
       </section>
 
       <section>
