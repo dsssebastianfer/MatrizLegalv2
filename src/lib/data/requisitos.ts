@@ -197,6 +197,7 @@ export async function getRequisitoDetalle(id: string) {
         orderBy: [{ fecha: "desc" }, { createdAt: "desc" }],
       },
       cambios: {
+        where: { eliminadoEn: null },
         orderBy: [{ fecha: "desc" }, { createdAt: "desc" }],
       },
     },

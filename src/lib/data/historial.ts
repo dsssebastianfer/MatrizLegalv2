@@ -11,6 +11,7 @@ export interface CambioCampo {
 export interface CrearHistorialInput {
   tipo: TipoEventoHistorial;
   requisitoId?: string | null;
+  cambioNormativoId?: string | null;
   codigoNormativo?: string | null;
   usuarioNombre: string;
   resumen: string;
@@ -22,6 +23,7 @@ export async function crearHistorial(data: CrearHistorialInput) {
     data: {
       tipo: data.tipo,
       requisitoId: data.requisitoId ?? null,
+      cambioNormativoId: data.cambioNormativoId ?? null,
       codigoNormativo: data.codigoNormativo ?? null,
       usuarioNombre: data.usuarioNombre,
       resumen: data.resumen,

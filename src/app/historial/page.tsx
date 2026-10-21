@@ -33,6 +33,11 @@ export default async function HistorialPage() {
                       {ev.codigoNormativo}
                     </Link>
                   )}
+                  {ev.cambioNormativoId && (
+                    <Link href={`/bitacora/${ev.cambioNormativoId}`} className="link-accent text-sm font-medium">
+                      Ver registro en la bitácora
+                    </Link>
+                  )}
                 </div>
                 <p className="text-sm">{ev.resumen}</p>
               </div>

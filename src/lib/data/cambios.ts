@@ -16,6 +16,7 @@ export interface CambioFormData {
 
 export async function listCambios() {
   return prisma.cambioNormativo.findMany({
+    where: { eliminadoEn: null },
     include: {
       requisitoBase: { select: { id: true, codigoNormativo: true, nombreOficial: true } },
     },
@@ -38,4 +39,17 @@ export async function createCambio(data: CambioFormData) {
 
 export async function updateCambio(id: string, data: CambioFormData) {
   return prisma.cambioNormativo.update({ where: { id }, data });
+}
+
+// Fila plana para comparar antes/después al registrar el historial.
+export async function getCambioRaw(id: string) {
+  return prisma.cambioNormativo.findUniqueOrThrow({ where: { id } });
+}
+
+export async function softDeleteCambio(id: string) {
+  return prisma.cambioNormativo.update({ where: { id }, data: { eliminadoEn: new Date() } });
+}
+
+export async function restoreCambio(id: string) {
+  return prisma.cambioNormativo.update({ where: { id }, data: { eliminadoEn: null } });
 }

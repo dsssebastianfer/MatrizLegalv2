@@ -74,6 +74,10 @@ enum TipoEventoHistorial {
   RegistroEvaluacion    @map("Registro de evaluación")
   EliminacionRequisito  @map("Eliminación de norma")
   RestauracionRequisito @map("Restauración de norma")
+  CreacionCambio        @map("Registro en bitácora")
+  EdicionCambio         @map("Edición en bitácora")
+  EliminacionCambio     @map("Eliminación en bitácora")
+  RestauracionCambio    @map("Restauración en bitácora")
 }
 
 // ---------- Modelos ----------
@@ -185,8 +189,13 @@ model CambioNormativo {
   queCambio                String?       @map("que_cambio")
   impacto                  ImpactoCambio
   nota                     String?
+  // Borrado suave, igual que en Requisito: oculto en la Bitácora y en la ficha
+  // de la norma, pero se conserva y se puede restaurar.
+  eliminadoEn              DateTime?     @map("eliminado_en")
   createdAt                DateTime      @default(now()) @map("created_at")
   updatedAt                DateTime      @updatedAt @map("updated_at")
+
+  historial HistorialCambio[]
 
   @@index([requisitoBaseId])
   @@map("cambio_normativo")
@@ -214,6 +223,9 @@ model HistorialCambio {
   tipo            TipoEventoHistorial
   requisitoId     String?             @map("requisito_id")
   requisito       Requisito?          @relation(fields: [requisitoId], references: [id])
+  // Solo en eventos de la Bitácora: el registro afectado.
+  cambioNormativoId String?           @map("cambio_normativo_id")
+  cambioNormativo   CambioNormativo?  @relation(fields: [cambioNormativoId], references: [id])
   // Copia del código al momento del cambio: sigue siendo legible aunque la
   // norma se elimine más adelante o el código mismo haya sido lo editado.
   codigoNormativo String?             @map("codigo_normativo")
@@ -225,6 +237,7 @@ model HistorialCambio {
   createdAt       DateTime            @default(now()) @map("created_at")
 
   @@index([requisitoId])
+  @@index([cambioNormativoId])
   @@index([createdAt])
   @@map("historial_cambio")
 }

@@ -3,8 +3,10 @@ import Link from "next/link";
 import { ImpactoCambio } from "@prisma/client";
 import { getCambio } from "@/lib/data/cambios";
 import { listRequisitosParaSelector } from "@/lib/data/requisitos";
-import { updateCambioAction } from "@/lib/actions/cambios";
+import { eliminarCambioAction, restaurarCambioAction, updateCambioAction } from "@/lib/actions/cambios";
 import { ETIQUETA_IMPACTO_CAMBIO } from "@/lib/labels";
+import { formatearFecha } from "@/lib/format";
+import { BotonConfirmar } from "@/components/BotonConfirmar";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,8 @@ export default async function EditarCambioPage({ params }: { params: Promise<{ i
   if (!cambio) notFound();
 
   const actionConId = updateCambioAction.bind(null, id);
+  const eliminarConId = eliminarCambioAction.bind(null, id);
+  const identificador = cambio.numeroCodigo || cambio.nombre || "este registro";
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -26,6 +30,19 @@ export default async function EditarCambioPage({ params }: { params: Promise<{ i
         <Link href="/bitacora" className="text-sm link-accent">
           ← Volver a la Bitácora
         </Link>
+        {cambio.eliminadoEn && (
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm dark:border-red-900/50 dark:bg-red-950/30">
+            <span className="text-red-800 dark:text-red-300">
+              Este registro fue eliminado el {formatearFecha(cambio.eliminadoEn)}. No aparece en la Bitácora ni en la
+              ficha de la norma.
+            </span>
+            <form action={restaurarCambioAction.bind(null, id)}>
+              <button type="submit" className="btn-secondary text-sm whitespace-nowrap">
+                Restaurar
+              </button>
+            </form>
+          </div>
+        )}
         <h1 className="text-2xl font-semibold mt-2">Editar cambio normativo</h1>
         {cambio.requisitoBase && (
           <p className="text-sm text-black/60 dark:text-white/60">
@@ -95,6 +112,32 @@ export default async function EditarCambioPage({ params }: { params: Promise<{ i
           </button>
         </div>
       </form>
+
+      {!cambio.eliminadoEn && (
+        <details className="rounded-lg border border-red-300 dark:border-red-900/50">
+          <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-red-700 dark:text-red-400">
+            Eliminar este registro
+          </summary>
+          <div className="px-4 pb-4">
+            <p className="text-sm text-black/60 dark:text-white/60 mb-3">
+              El registro deja de aparecer en la Bitácora y en la ficha de la norma, pero se conserva y queda en el
+              Historial de cambios. Se puede restaurar después desde el Historial.
+            </p>
+            <form action={eliminarConId} className="space-y-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-black/60 dark:text-white/60">Justificación de la eliminación</span>
+                <textarea name="justificacion" required rows={3} className="field" />
+              </label>
+              <BotonConfirmar
+                mensaje={`¿Eliminar «${identificador}» de la bitácora? Se puede restaurar después.`}
+                className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+              >
+                Eliminar registro
+              </BotonConfirmar>
+            </form>
+          </div>
+        </details>
+      )}
     </div>
   );
 }

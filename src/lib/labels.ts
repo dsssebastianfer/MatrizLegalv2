@@ -140,6 +140,10 @@ export const ETIQUETA_TIPO_EVENTO_HISTORIAL: Record<TipoEventoHistorial, string>
   [TipoEventoHistorial.RegistroEvaluacion]: "Revisión registrada",
   [TipoEventoHistorial.EliminacionRequisito]: "Norma eliminada",
   [TipoEventoHistorial.RestauracionRequisito]: "Norma restaurada",
+  [TipoEventoHistorial.CreacionCambio]: "Bitácora: registro nuevo",
+  [TipoEventoHistorial.EdicionCambio]: "Bitácora: registro editado",
+  [TipoEventoHistorial.EliminacionCambio]: "Bitácora: registro eliminado",
+  [TipoEventoHistorial.RestauracionCambio]: "Bitácora: registro restaurado",
 };
 
 export const COLOR_TIPO_EVENTO_HISTORIAL: Record<TipoEventoHistorial, string> = {
@@ -148,6 +152,24 @@ export const COLOR_TIPO_EVENTO_HISTORIAL: Record<TipoEventoHistorial, string> = 
   [TipoEventoHistorial.RegistroEvaluacion]: "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300",
   [TipoEventoHistorial.EliminacionRequisito]: "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300",
   [TipoEventoHistorial.RestauracionRequisito]: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300",
+  [TipoEventoHistorial.CreacionCambio]: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300",
+  [TipoEventoHistorial.EdicionCambio]: "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-300",
+  [TipoEventoHistorial.EliminacionCambio]: "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300",
+  [TipoEventoHistorial.RestauracionCambio]: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300",
+};
+
+// Etiquetas de los campos de un registro de la Bitácora, para el detalle
+// "antes / después" de sus ediciones en el historial de cambios.
+export const ETIQUETA_CAMPO_CAMBIO: Record<string, string> = {
+  requisitoBaseId: "Requisito base",
+  fecha: "Fecha",
+  tipo: "Tipo",
+  numeroCodigo: "Número / código",
+  nombre: "Nombre",
+  normaOParteQueActualiza: "Norma o parte que actualiza",
+  queCambio: "Qué cambió / materia",
+  impacto: "Impacto en DSS",
+  nota: "Acción / nota",
 };
 
 // Traduce el nombre técnico de cada campo editable de un Requisito al texto

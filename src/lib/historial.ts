@@ -1,8 +1,10 @@
-import { Area, EstadoEvaluacion, TipoEventoHistorial, type Requisito } from "@prisma/client";
+import { Area, EstadoEvaluacion, TipoEventoHistorial, type CambioNormativo, type Requisito } from "@prisma/client";
 import {
   ETIQUETA_AREA,
+  ETIQUETA_CAMPO_CAMBIO,
   ETIQUETA_CAMPO_REQUISITO,
   ETIQUETA_ESTADO_EVALUACION,
+  ETIQUETA_IMPACTO_CAMBIO,
   ETIQUETA_ESTADO_REQUISITO,
   ETIQUETA_PRIORIDAD,
   ETIQUETA_RANGO_JURIDICO,
@@ -161,5 +163,99 @@ export async function registrarRestauracionRequisito(requisito: Requisito, usuar
     codigoNormativo: requisito.codigoNormativo,
     usuarioNombre,
     resumen: `Restauró la norma «${requisito.codigoNormativo}» (previamente eliminada).`,
+  });
+}
+
+// ---------- Bitácora de cambios normativos ----------
+
+// Cómo se nombra un registro de la Bitácora en los resúmenes del historial.
+function nombreCambio(cambio: CambioNormativo) {
+  return cambio.numeroCodigo || cambio.nombre || "sin número ni nombre";
+}
+
+// La fecha de la Bitácora es solo día (sin hora), guardada a medianoche UTC.
+function formatearFechaCambio(fecha: Date) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(fecha.getUTCDate())}-${pad(fecha.getUTCMonth() + 1)}-${fecha.getUTCFullYear()}`;
+}
+
+async function formatearValorCambio(campo: string, valor: unknown): Promise<string> {
+  if (valor === null || valor === undefined || valor === "") return VACIO;
+  switch (campo) {
+    case "impacto":
+      return ETIQUETA_IMPACTO_CAMBIO[valor as keyof typeof ETIQUETA_IMPACTO_CAMBIO];
+    case "requisitoBaseId":
+      return (await getCodigoNormativoRequisito(valor as string)) ?? (valor as string);
+    case "fecha":
+      return formatearFechaCambio(valor as Date);
+    default:
+      return String(valor);
+  }
+}
+
+function mismoValor(a: unknown, b: unknown) {
+  if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();
+  return (a ?? null) === (b ?? null);
+}
+
+export async function registrarCreacionCambio(cambio: CambioNormativo, usuarioNombre: string) {
+  await crearHistorial({
+    tipo: TipoEventoHistorial.CreacionCambio,
+    cambioNormativoId: cambio.id,
+    usuarioNombre,
+    resumen: `Registró en la bitácora «${nombreCambio(cambio)}».`,
+  });
+}
+
+export async function registrarEdicionCambio(
+  antes: CambioNormativo,
+  despues: CambioNormativo,
+  usuarioNombre: string,
+) {
+  const cambios: CambioCampo[] = [];
+  for (const campo of Object.keys(ETIQUETA_CAMPO_CAMBIO)) {
+    const valorAntes = (antes as unknown as Record<string, unknown>)[campo];
+    const valorDespues = (despues as unknown as Record<string, unknown>)[campo];
+    if (mismoValor(valorAntes, valorDespues)) continue;
+    cambios.push({
+      campo,
+      etiqueta: ETIQUETA_CAMPO_CAMBIO[campo],
+      antes: await formatearValorCambio(campo, valorAntes),
+      despues: await formatearValorCambio(campo, valorDespues),
+    });
+  }
+
+  // No dejar un rastro vacío si el formulario se guardó sin cambiar nada.
+  if (cambios.length === 0) return;
+
+  const listaEtiquetas = cambios.map((c) => `«${c.etiqueta}»`).join(", ");
+  await crearHistorial({
+    tipo: TipoEventoHistorial.EdicionCambio,
+    cambioNormativoId: despues.id,
+    usuarioNombre,
+    resumen: `Editó ${listaEtiquetas} del registro «${nombreCambio(despues)}» de la bitácora.`,
+    cambios,
+  });
+}
+
+export async function registrarEliminacionCambio(
+  cambio: CambioNormativo,
+  justificacion: string,
+  usuarioNombre: string,
+) {
+  await crearHistorial({
+    tipo: TipoEventoHistorial.EliminacionCambio,
+    cambioNormativoId: cambio.id,
+    usuarioNombre,
+    resumen: `Eliminó de la bitácora el registro «${nombreCambio(cambio)}». Justificación: ${justificacion}`,
+  });
+}
+
+export async function registrarRestauracionCambio(cambio: CambioNormativo, usuarioNombre: string) {
+  await crearHistorial({
+    tipo: TipoEventoHistorial.RestauracionCambio,
+    cambioNormativoId: cambio.id,
+    usuarioNombre,
+    resumen: `Restauró en la bitácora el registro «${nombreCambio(cambio)}» (previamente eliminado).`,
   });
 }
