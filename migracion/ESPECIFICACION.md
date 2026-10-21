@@ -106,7 +106,7 @@ Lista de normas **no eliminadas**, agrupadas por bloque temático (en orden de `
 
 **Columnas**: ID · Código normativo (enlace a la ficha) · Nombre oficial · Estado (tooltip con la aplicabilidad) · Última revisión (estado actual de evaluación + fecha, o "Sin evaluar") · Prioridad · Vigilancia · Área.
 
-**Jerarquía**: las normas hijas aparecen indentadas bajo su norma madre (con "↳"), dentro del bloque de la madre. Si la madre no está en el resultado (por filtro o porque está en otro bloque), la hija aparece como fila principal con un texto "Modifica de [código madre] (bloque)". Orden dentro de cada nivel: `legacy_id`.
+**Jerarquía**: las normas hijas aparecen indentadas bajo su norma madre (con "↳"). Detalle completo en la sección 5.5.
 
 Botón "+ Nueva norma".
 
@@ -159,6 +159,34 @@ Guardar desde un lápiz actualiza **solo** los campos de esa sección y vuelve a
 - Una norma eliminada no aparece en la Matriz, ni en los selectores, ni en Anterior/Siguiente. Sí se puede abrir su ficha (por ejemplo desde el Historial) y restaurarla.
 - Si una norma madre se elimina, sus hijas siguen visibles como normas principales.
 - Restaurar = `eliminado_en = NULL`.
+
+### 5.5 Normas anidadas (norma madre → hijas)
+
+Una norma puede depender de otra (su **norma madre**) mediante `norma_madre_id`. Por ejemplo, un reglamento cuelga de la ley que reglamenta, o cada "Libro" del Compendio de la Ley 16.744 cuelga del Compendio. `tipo_relacion` dice **cómo** se relaciona la hija con su madre.
+
+**Datos actuales**
+- **Hasta 3 niveles**: 56 normas principales, 42 hijas y 8 "nietas" (hijas de una hija). El modelo admite cualquier profundidad, así que el código debe ser **recursivo** y no suponer un máximo.
+- Las normas principales siempre tienen `tipo_relacion = 'Principal'`. Las hijas usan Complementa (15), Libro (9), Modifica (8), Reglamenta (8), Sub-parte (7), Reemplazada por (2) y Transición (1).
+- **7 hijas están en un bloque temático distinto** al de su madre.
+
+**Cómo se muestran en la Matriz**
+- El árbol se arma **dentro de cada bloque temático**. Bajo cada norma van sus hijas, y bajo cada hija sus propias hijas.
+- Las hijas se muestran **indentadas 20 px por nivel** y con "↳" antes del código. Las columnas no cambian.
+- Orden: por `legacy_id` dentro de cada nivel.
+- **Hija en otro bloque que su madre**: aparece en **su propio bloque** como fila principal (sin indentar), con una línea chica gris bajo el código: `[Tipo de relación] de [código de la madre] ([bloque de la madre])`, donde el código es un enlace. Ej.: la "Ley N° 21.643/2024 (Ley Karin)" está en el bloque "Acoso y violencia laboral" y cuelga del Código del Trabajo; ahí se ve como principal con la línea *"Modifica de D.F.L. N° 1/2002, MINTRAB (Codigo del Trabajo) (Laboral / Codigo del Trabajo)"*.
+- **Con filtros**: cada norma se filtra por sí misma. Si una hija cumple el filtro pero su madre no, la hija aparece como fila principal con esa misma línea gris. Si la madre cumple y la hija no, la hija no aparece.
+- **Madre eliminada**: sus hijas pasan a mostrarse como filas principales (con la línea gris, porque siguen teniendo madre).
+
+**En otras pantallas**
+- **Ficha de la norma, sección "Relación normativa"** (solo si tiene madre o hijas): si tiene madre, `[Tipo de relación] de [código madre]` como enlace; si tiene hijas, una lista de enlaces a cada hija con su tipo de relación entre paréntesis.
+- **Índice ▾**: mismo árbol que la Matriz, indentado 12 px por nivel y con "↳".
+- **Anterior / Siguiente**: recorren las normas en el mismo orden visual de la Matriz sin filtros: bloque por bloque y, dentro de cada uno, cada madre seguida de sus hijas (de arriba hacia abajo, como se ve en pantalla).
+- **Formulario crear/editar**: selector "Norma madre" (opcional; vacío = principal) y "Tipo de relación".
+
+**Recomendaciones para la versión PHP** (la app actual no las controla):
+1. **Evitar ciclos.** Hoy solo se impide que una norma sea madre de sí misma. Se podría elegir como madre a una de sus propias hijas o nietas (A → B → A), y entonces **ninguna de las dos aparecería en la Matriz**. En el selector "Norma madre" hay que excluir la norma y todos sus descendientes. Hoy no hay ciclos en los datos.
+2. **Hijas eliminadas en "Relación normativa".** La ficha de la madre sigue listando las hijas eliminadas. Conviene ocultarlas o marcarlas como eliminadas.
+3. **Redacción.** La frase `[Tipo] de [madre]` se lee bien para algunos tipos ("Libro de…", "Sub-parte de…"), pero no para otros ("Complementa de…", "Reemplazada por de…"). Se podría ajustar el texto según el tipo (ej. "Complementa a…", "Reemplazada por…").
 
 ---
 
