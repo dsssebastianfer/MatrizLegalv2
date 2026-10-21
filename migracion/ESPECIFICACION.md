@@ -189,6 +189,34 @@ Los cambios en Bitácora y Vigilancia **no** se registran en el historial.
 
 ## 7. Textos de ayuda (tooltips) — copiar literal
 
+### Cómo se comportan
+- Aparecen al pasar el mouse **o** al enfocar con el teclado (Tab), y desaparecen al salir.
+- Recuadro blanco con borde y sombra, de unos **480 px de ancho** y letra chica. Si el texto es largo, tiene scroll interno (máximo 70 % del alto de la pantalla).
+- **Se respetan los saltos de línea** del texto (importante en "Criterio de aplicabilidad", que tiene párrafos y viñetas).
+- Se ubican bajo el elemento, o arriba si no hay espacio abajo, y nunca se salen de la pantalla.
+- Hay dos estilos para activarlos:
+  - **Texto con subrayado punteado** (el nombre del campo).
+  - **Ícono "i"**: círculo teal relleno con una "i" blanca. Solo en "Criterio de aplicabilidad" y "Criterio de la bitácora".
+
+### Dónde aparece cada uno
+
+| Tooltip | Dónde |
+|---|---|
+| Prioridad | Matriz: filtro y encabezado de columna · Ficha: insignia de prioridad · Formulario crear/editar |
+| Vigilancia | Matriz: filtro y encabezado de columna · Ficha: insignia de vigilancia · Formulario crear/editar |
+| Rango jurídico | Ficha: Datos generales · Formulario crear/editar |
+| Frecuencia de revisión | Ficha: Datos generales · Formulario crear/editar |
+| Relación normativa | Ficha: título de la sección · Formulario: "Tipo de relación" |
+| Requisito o artículo clave (orientativo) | Ficha: Contenido y aplicabilidad (lectura y ✏️) · Formulario crear/editar |
+| Cómo demostrar cumplimiento (orientativo) | Ficha: Contenido y aplicabilidad (lectura y ✏️) · Formulario crear/editar |
+| Cambios normativos vinculados | Ficha: título de la sección |
+| Criterio de aplicabilidad (ícono "i") | Ficha: junto al título "Contenido y aplicabilidad" |
+| Criterio de la bitácora (ícono "i") | Bitácora: junto a la descripción bajo el título |
+| **Aplicabilidad de la norma** (texto de cada norma, campo `aplicabilidad`) | Matriz: insignia de Estado de cada fila · Ficha: insignia de Estado. Si la norma no tiene aplicabilidad escrita, no hay tooltip. |
+| **Nombre oficial** (campo `nombre_oficial`) | Índice de normas (lista lateral de la ficha): al pasar sobre cada norma. |
+
+### Textos
+
 **Prioridad**: Indica qué tan grave sería incumplir la norma, combinando el riesgo legal, la probabilidad de fiscalización y las consecuencias para las personas o el medioambiente. Opciones: Crítica · Alta · Media · Baja.
 
 **Vigilancia**: Indica con qué frecuencia hay que revisar si la norma cambió. Mide el ritmo al que se modifica. Las normas de vigilancia alta cambian seguido, por lo que exigen monitoreo activo en el sitio del organismo que las dicta. Opciones: Alto · Medio · Bajo.
