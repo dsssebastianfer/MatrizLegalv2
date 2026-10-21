@@ -132,7 +132,47 @@ Formulario con todos los campos de `requisito` + áreas (casillas). Código y no
 - **Eliminar** (solo en Editar, al final, en un recuadro rojo desplegable "Eliminar esta norma"): exige **justificación obligatoria** y confirmación. Ver 5.4.
 
 ### 4.5 Bitácora de cambios normativos
-Formulario "Registrar nuevo cambio" (desplegable): Requisito base (selector `#ID — código`, opcional), Fecha, Tipo, Número/código, Nombre, Norma o parte que actualiza, Qué cambió, Impacto, Nota. Tabla de todos los cambios con enlace "Editar". Ícono "i" junto a la descripción con el texto "Criterio de la bitácora" (sección 7).
+
+**Para qué sirve.** Las normas cambian: salen circulares, leyes que modifican otras, pliegos técnicos, etc. Cuando se detecta uno de esos cambios (normalmente gracias a la Vigilancia normativa), se anota en la Bitácora junto con su análisis: **qué cambió y si le impacta a DSS o no**. Así queda evidencia de que el cambio se revisó, aunque la conclusión sea que no aplica.
+
+**¿Bitácora o norma nueva en la Matriz?** Un cambio va a la Bitácora cuando modifica una norma que ya está en la Matriz pero no crea una obligación con seguimiento propio. Si trae un régimen de cumplimiento nuevo (su propio procedimiento, evidencia o revisión periódica), se agrega como norma propia en la Matriz, colgando de su norma madre (sección 5.5). Este criterio se le muestra al usuario en el ícono "i" (texto en la sección 7, "Criterio de la bitácora").
+
+**Datos actuales**: 21 registros (12 Circular, 8 Ley modificatoria, 1 Pliego técnico). 18 están vinculados a una norma de la Matriz y 3 no (ej. una circular para Cajas de Compensación, que no tiene norma base porque DSS no es una C.C.A.F.). Impacto: 10 "Sí", 10 "No aplica", 1 "Aplicación indirecta".
+
+**Pantalla principal (`/bitacora`)**
+- Título "Bitácora de cambios normativos" y debajo la descripción *"Circulares, leyes modificatorias y pliegos técnicos que actualizan una norma base."* con el ícono "i" al lado.
+- Desplegable **"Registrar nuevo cambio"** con el formulario (campos más abajo).
+- **Tabla** con todos los registros. Columnas: Fecha · Tipo · Número/código · Nombre · Norma base (enlace a la ficha de la norma, o "—" si no tiene) · Impacto (insignia de color) · Nota · "Editar".
+- Orden: fecha más reciente primero; si empatan, el último registrado primero.
+- No tiene filtros ni paginación.
+
+**Formulario** (el mismo para registrar y editar). Solo **Impacto** es obligatorio:
+| Campo en pantalla | Columna | Tipo de campo |
+|---|---|---|
+| Requisito base (si corresponde) | `requisito_base_id` | Selector `#ID — código`, con la primera opción *"Ninguno (no modifica una norma de la Matriz)"*. |
+| Fecha (si se conoce) | `fecha` | Fecha, opcional. |
+| Tipo | `tipo` | Texto libre (ejemplo de ayuda: "Circular, Ley modificatoria..."). |
+| Número / código | `numero_codigo` | Texto. Ej. "Circular SUSESO N° 3924". |
+| Nombre | `nombre` | Texto. |
+| Norma o parte que actualiza | `norma_o_parte_que_actualiza` | Texto. Ej. "Compendio Ley N° 16.744 — Libro III, Título III". Sirve para precisar la parte exacta aunque la norma base sea más general. |
+| Qué cambió / materia | `que_cambio` | Texto largo. |
+| Impacto en DSS | `impacto` | Selector: Sí · No aplica · Aplicación condicionada · Aplicación indirecta. |
+| Acción / nota | `nota` | Texto largo: la conclusión o lo que hay que hacer. Ej. *"DSS no desarrolla actividad ferroviaria…"*. |
+
+**Editar (`/bitacora/[id]`)**: enlace "← Volver a la Bitácora", título "Editar cambio normativo" y, si tiene norma base, el subtítulo *"Sobre [código] — [nombre oficial]"*. Mismo formulario con los valores cargados y el botón "Guardar cambios". Al guardar vuelve a la lista.
+
+**Relación con la ficha de la norma**: en la ficha, la sección **"Cambios normativos vinculados"** muestra los registros de la Bitácora cuya norma base es esa norma (columnas: Fecha · Tipo · Número/código · Nombre · Qué cambió · Impacto · Nota; sin enlace para editar), o *"Sin cambios registrados en la bitácora."* si no hay ninguno.
+
+**Reglas**
+- Los registros **no se pueden eliminar** desde la app; solo crear y editar.
+- Los cambios en la Bitácora **no** quedan en el Historial de cambios.
+- El selector de norma base muestra solo normas no eliminadas.
+
+**Recomendaciones para la versión PHP**
+1. **Norma base eliminada.** Si la norma base de un registro se elimina, el selector de edición ya no la muestra. Al guardar ese registro, quedaría desvinculado sin aviso. En el selector hay que incluir la norma actual del registro aunque esté eliminada. Hoy no hay casos.
+2. **Registros sin fecha.** La fecha es opcional. En Postgres los registros sin fecha salen primero en la lista y en MariaDB saldrían al final. Hoy todos tienen fecha, pero conviene definir dónde deben ir.
+3. **Corregir errores.** Como no se puede eliminar un registro equivocado, se podría agregar eliminar (con justificación, como las normas) y/o registrar los cambios de la Bitácora en el Historial.
+4. **Tipo** es texto libre, pero en la práctica se usan 3 valores. Se podría convertir en un selector (Circular, Ley modificatoria, Pliego técnico, Otro).
 
 ### 4.6 Vigilancia normativa
 Lista de fuentes, cada una con "Editar" (desplegable) y "Eliminar". Formulario "Agregar fuente".
