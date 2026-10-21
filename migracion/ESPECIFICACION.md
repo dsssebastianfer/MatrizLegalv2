@@ -111,7 +111,7 @@ Lista de normas **no eliminadas**, agrupadas por bloque temático (en orden de `
 Botón "+ Nueva norma".
 
 ### 4.3 Ficha de una norma
-Encabezado: `#ID` + código, nombre oficial, insignias (estado con tooltip de aplicabilidad, prioridad, vigilancia, áreas). Botones: ← Volver a la Matriz · ↑ Anterior · ↓ Siguiente (siguen el orden de la Matriz) · Editar · Índice de normas (lista lateral).
+Encabezado: `#ID` + código, nombre oficial, insignias (estado con tooltip de aplicabilidad, prioridad, vigilancia, áreas). Botones: ← Volver a la Matriz · ↑ Anterior · ↓ Siguiente (siguen el orden de la Matriz) · Editar · Índice ▾ (panel desplegable con todas las normas, ver 8.3). La disposición visual de cada sección está en la sección 8.3.
 
 Si la norma está eliminada: aviso rojo arriba "Esta norma fue eliminada el [fecha]…" con botón **Restaurar**.
 
@@ -213,7 +213,7 @@ Los cambios en Bitácora y Vigilancia **no** se registran en el historial.
 | Criterio de aplicabilidad (ícono "i") | Ficha: junto al título "Contenido y aplicabilidad" |
 | Criterio de la bitácora (ícono "i") | Bitácora: junto a la descripción bajo el título |
 | **Aplicabilidad de la norma** (texto de cada norma, campo `aplicabilidad`) | Matriz: insignia de Estado de cada fila · Ficha: insignia de Estado. Si la norma no tiene aplicabilidad escrita, no hay tooltip. |
-| **Nombre oficial** (campo `nombre_oficial`) | Índice de normas (lista lateral de la ficha): al pasar sobre cada norma. |
+| **Nombre oficial** (campo `nombre_oficial`) | Índice de normas (panel "Índice ▾" de la ficha): al pasar sobre cada norma. |
 
 ### Textos
 
@@ -253,15 +253,70 @@ Los cambios en Bitácora y Vigilancia **no** se registran en el historial.
 
 ---
 
-## 8. Colores (referencia)
+## 8. Diseño visual
 
-| Valor | Color |
+Esta sección describe cómo se ve la app actual. Si la versión PHP adopta el estilo general de la página de gestión de DSS, lo importante es mantener **la estructura** (qué va en recuadros, el orden y la jerarquía) y **el significado de los colores** (verde = cumple, rojo = no cumple, gris = no aplica…). Los valores exactos quedan como referencia. Para verlo en vivo: https://matriz-legal-dss-psi.vercel.app
+
+### 8.1 Estilo general
+- **Color principal**: teal `#0d9488` (botones, acentos). Teal oscuro `#0f766e` para enlaces y títulos destacados.
+- **Fondo** blanco `#ffffff`; **texto** casi negro `#171717`. Los textos secundarios (etiquetas de campos, descripciones) usan el mismo negro al 60 % de opacidad.
+- **Bordes** de recuadros: gris muy suave (negro al 10 %), esquinas redondeadas (8 px).
+- **Tipografía**: Arial / Helvetica. Tamaño base 14 px; etiquetas de campos 12 px; títulos de página 24 px en semi-negrita; títulos de sección 18 px.
+- **Ancho máximo** del contenido: 1152 px, centrado.
+- Tiene **modo oscuro** automático (sigue la preferencia del sistema operativo): fondo `#0a0a0a`, texto `#ededed` y los mismos acentos en tonos más claros. Es opcional para la versión PHP.
+
+### 8.2 Componentes reutilizados
+| Componente | Cómo se ve |
 |---|---|
-| Estado norma: Aplica / No aplica / Derogada / Evaluar aplicabilidad | verde / gris / gris oscuro / celeste |
-| Evaluación: Cumple / Cumple parcialmente / No cumple / No aplica / Por evaluar | verde / ámbar / rojo / gris / celeste |
-| Prioridad: Crítica / Alta / Media / Baja | rojo / naranjo / ámbar / gris |
-| Impacto: Sí / No aplica / Aplicación condicionada / Aplicación indirecta | verde / gris / ámbar / celeste |
-| Historial: Creada / Editada / Revisión / Eliminada / Restaurada | verde / celeste / ámbar / rojo / verde |
+| **Encabezado de página** | Barra superior con una línea teal de 2 px abajo. A la izquierda "Matriz Legal DSS" en teal oscuro y negrita; al lado el menú. La pestaña activa tiene fondo teal suave y texto teal. |
+| **Título de sección** | Texto de 18 px con una **barra vertical teal de 4 px a la izquierda** (ej. "Datos generales", "Historial de cambios"). |
+| **Botón principal** | Fondo teal, texto blanco, esquinas redondeadas (6 px). Ej. "Guardar", "Filtrar", "+ Nueva norma". |
+| **Botón secundario** | Fondo transparente, borde gris; al pasar el mouse, borde y texto teal. Ej. "Editar", "↑ Anterior", "Desplegar todo". |
+| **Enlace** | Texto teal oscuro, subrayado al pasar el mouse. |
+| **Insignia (badge)** | Píldora redondeada, texto de 12 px en semi-negrita, fondo de color claro con texto del mismo tono oscuro (colores en 8.5). |
+| **Campo de formulario** | Borde gris, esquinas redondeadas; al enfocarlo, borde teal con un halo suave. Etiqueta pequeña gris arriba del campo. |
+| **Desplegable** | Texto clicable (ej. "Registrar nueva evaluación"); al hacer clic se abre el contenido debajo. |
+| **Tablas** | Sin bordes verticales; separador gris muy suave entre filas; encabezado de 12 px en gris. Dentro de un contenedor con scroll horizontal si no cabe. |
+
+### 8.3 Ficha de una norma — estructura en contenedores
+Las secciones van una debajo de otra, con bastante espacio entre ellas (40 px). Cada sección tiene su **título con barra teal** y debajo su contenido:
+
+1. **Encabezado** (sin recuadro): fila superior con "← Volver a la Matriz" a la izquierda y los botones Anterior / Siguiente / Editar / Índice ▾ a la derecha. Debajo, `#ID` en gris + código normativo en grande, el nombre oficial y una fila de insignias (estado, prioridad, vigilancia, áreas).
+   - Si la norma está eliminada: **recuadro rojo** (fondo `#fef2f2`, borde `#fca5a5`) con el aviso y el botón "Restaurar" a la derecha.
+2. **Datos generales**: **recuadro** con borde gris suave y 16 px de relleno. Arriba, el bloque temático como insignia teal grande; debajo, los campos en **dos columnas** (etiqueta chica gris arriba, valor abajo). **Lápiz ✏️ en la esquina superior derecha** del recuadro: al hacer clic, el contenido se reemplaza por el formulario de edición dentro del mismo recuadro y el lápiz cambia a ✕ (cancelar).
+3. **Contenido y aplicabilidad**: mismo tipo de recuadro y lápiz que Datos generales, campos en dos columnas. Ícono "i" teal junto al título.
+4. **Relación normativa** (si corresponde): **sin recuadro**, texto simple con enlaces.
+5. **Evaluación de Cumplimiento**: recuadro **destacado**, distinto a los anteriores: **borde teal de 2 px y fondo teal muy suave** (`#0d9488` al 5 %). Adentro, la tabla y el desplegable "Registrar nueva evaluación".
+   - Si la norma es "No aplica": recuadro con **borde gris de 2 px y fondo gris claro** (`#f3f4f6`, borde `#d1d5db`) y el mensaje en gris.
+6. **Cambios normativos vinculados**: **sin recuadro**, tabla directa.
+7. **Historial de cambios**: lista de **tarjetas** (una por evento), cada una con borde gris suave y 12 px de relleno. Insignia de tipo + resumen a la izquierda; fecha-hora y usuario en gris, alineados a la derecha.
+
+**Índice de normas**: botón "Índice ▾" que abre un **panel flotante** (288 px de ancho, sombra, scroll interno) bajo el botón, con las normas agrupadas por bloque temático (cada bloque desplegable) y la norma actual resaltada en teal. Solo se muestra en pantallas anchas (≥ 1280 px).
+
+**Editar norma**: formulario en dos columnas, con ancho máximo de 768 px. Al final, el **recuadro rojo desplegable** "Eliminar esta norma" (borde rojo claro), con el botón de eliminar en rojo sólido (`#dc2626`).
+
+### 8.4 Otras pantallas
+- **Matriz**: título y descripción a la izquierda, botón "+ Nueva norma" a la derecha. Debajo, los filtros en una fila que se reparte en varias líneas si no cabe. Debajo, el botón "Contraer todo / Desplegar todo" alineado a la derecha y luego **un recuadro por bloque temático** (borde gris suave). El título de cada bloque es una barra clicable a lo ancho del recuadro, con una flecha ▶ que gira 90° al abrir. La tabla va dentro del recuadro.
+- **Historial de cambios**: lista de tarjetas igual que en la ficha, más el enlace a la norma junto a la insignia.
+- **Vigilancia normativa**: cada fuente es una **tarjeta con borde gris y una barra teal gruesa (4 px) a la izquierda**; "Eliminar" en rojo a la derecha y "Editar" como desplegable.
+- **Dashboard**: porcentaje de avance en **número muy grande** (60 px, negrita), en verde, ámbar o rojo según el valor. Debajo, **barras horizontales** delgadas (8 px, redondeadas): nombre a la izquierda (160 px), barra al centro y cantidad a la derecha.
+
+### 8.5 Colores de insignias
+Formato: fondo / texto.
+
+| Insignia | Valores |
+|---|---|
+| Estado de norma | Aplica: verde `#d1fae5` / `#065f46` · No aplica: gris `#f3f4f6` / `#374151` · Derogada: gris `#e5e7eb` / `#4b5563` · Evaluar aplicabilidad: celeste `#e0f2fe` / `#075985` |
+| Evaluación | Cumple: verde · Cumple parcialmente: ámbar `#fef3c7` / `#92400e` · No cumple: rojo `#fee2e2` / `#991b1b` · No aplica: gris · Por evaluar: celeste · Sin evaluar: gris |
+| Prioridad | Crítica: rojo · Alta: naranjo `#ffedd5` / `#9a3412` · Media: ámbar · Baja: gris |
+| Impacto (Bitácora) | Sí: verde · No aplica: gris · Aplicación condicionada: ámbar · Aplicación indirecta: celeste |
+| Tipo de evento (Historial) | Creada: verde · Editada: celeste · Revisión registrada: ámbar · Eliminada: rojo · Restaurada: verde |
+| Bloque temático (ficha) | Fondo teal suave / texto teal oscuro |
+| Vigilancia y Área | Fondo gris muy suave / texto normal |
+
+**Barras del Dashboard** (colores sólidos): Cumple `#10b981` · Cumple parcialmente `#f59e0b` · No cumple `#ef4444` · No aplica `#9ca3af` · Por evaluar `#38bdf8` · Sin evaluar `#d1d5db` · Crítica `#ef4444` · Alta `#f97316` · Media `#fbbf24` · Baja `#9ca3af`.
+
+**Porcentaje del Dashboard**: verde `#059669` (≥ 80 %), ámbar `#d97706` (≥ 50 %), rojo `#dc2626` (< 50 %).
 
 ---
 
