@@ -72,13 +72,13 @@ Histórico de revisiones de una norma. **Solo se agregan filas; nunca se editan 
 El **estado actual** de una norma = su evaluación más reciente (mayor `fecha`; si empatan, la de `created_at` más reciente). No se guarda como columna: se calcula.
 
 ### `cambio_normativo` — Bitácora de cambios normativos
-Circulares, leyes modificatorias, pliegos técnicos, etc. que actualizan una norma. `requisito_base_id` es opcional (algunas no modifican ninguna norma de la Matriz). `impacto`: `Sí` · `No aplica` · `Aplicación condicionada` · `Aplicación indirecta`.
+Circulares, leyes modificatorias, pliegos técnicos, etc. que actualizan una norma. `requisito_base_id` es opcional (algunas no modifican ninguna norma de la Matriz). `impacto`: `Sí` · `No aplica` · `Aplicación condicionada` · `Aplicación indirecta`. `eliminado_en`: borrado suave, igual que en las normas (ver 4.5).
 
 ### `fuente_vigilancia` — Vigilancia normativa
 Sitios a monitorear (BCN, SUSESO, SEC, etc.) con URL, frecuencia, responsable, fecha de última revisión y notas. Hoy está vacía.
 
 ### `historial_cambio` — Historial de cambios
-Registro legible de quién hizo qué. **Solo se agregan filas; nunca se editan ni se borran.** Ver sección 6.
+Registro legible de quién hizo qué. **Solo se agregan filas; nunca se editan ni se borran.** Los eventos de normas llevan `requisito_id`; los de la Bitácora llevan `cambio_normativo_id`. Ver sección 6.
 
 ---
 
@@ -142,7 +142,7 @@ Formulario con todos los campos de `requisito` + áreas (casillas). Código y no
 **Pantalla principal (`/bitacora`)**
 - Título "Bitácora de cambios normativos" y debajo la descripción *"Circulares, leyes modificatorias y pliegos técnicos que actualizan una norma base."* con el ícono "i" al lado.
 - Desplegable **"Registrar nuevo cambio"** con el formulario (campos más abajo).
-- **Tabla** con todos los registros. Columnas: Fecha · Tipo · Número/código · Nombre · Norma base (enlace a la ficha de la norma, o "—" si no tiene) · Impacto (insignia de color) · Nota · "Editar".
+- **Tabla** con todos los registros no eliminados. Columnas: Fecha · Tipo · Número/código · Nombre · Norma base (enlace a la ficha de la norma, o "—" si no tiene) · Impacto (insignia de color) · Nota · "Editar".
 - Orden: fecha más reciente primero; si empatan, el último registrado primero.
 - No tiene filtros ni paginación.
 
@@ -161,24 +161,26 @@ Formulario con todos los campos de `requisito` + áreas (casillas). Código y no
 
 **Editar (`/bitacora/[id]`)**: enlace "← Volver a la Bitácora", título "Editar cambio normativo" y, si tiene norma base, el subtítulo *"Sobre [código] — [nombre oficial]"*. Mismo formulario con los valores cargados y el botón "Guardar cambios". Al guardar vuelve a la lista.
 
-**Relación con la ficha de la norma**: en la ficha, la sección **"Cambios normativos vinculados"** muestra los registros de la Bitácora cuya norma base es esa norma (columnas: Fecha · Tipo · Número/código · Nombre · Qué cambió · Impacto · Nota; sin enlace para editar), o *"Sin cambios registrados en la bitácora."* si no hay ninguno.
+**Eliminar (en la página de editar)**: al final hay un recuadro rojo desplegable **"Eliminar este registro"**, igual al de las normas. Pide una **justificación obligatoria** y confirmación, y luego vuelve a la lista. Es un **borrado suave** (`eliminado_en = NOW()`): el registro deja de aparecer en la Bitácora y en "Cambios normativos vinculados" de la norma, pero se conserva en la base.
+- Si se abre un registro eliminado (por ejemplo desde el enlace del Historial), arriba aparece un **aviso rojo** *"Este registro fue eliminado el [fecha]…"* con el botón **Restaurar** (`eliminado_en = NULL`). En ese caso no se muestra el recuadro de eliminar.
+
+**Relación con la ficha de la norma**: en la ficha, la sección **"Cambios normativos vinculados"** muestra los registros de la Bitácora (no eliminados) cuya norma base es esa norma (columnas: Fecha · Tipo · Número/código · Nombre · Qué cambió · Impacto · Nota; sin enlace para editar), o *"Sin cambios registrados en la bitácora."* si no hay ninguno.
 
 **Reglas**
-- Los registros **no se pueden eliminar** desde la app; solo crear y editar.
-- Los cambios en la Bitácora **no** quedan en el Historial de cambios.
+- Se puede crear, editar, eliminar (con justificación) y restaurar.
+- **Todo queda en el Historial de cambios**: quién registró, editó (con el detalle antes/después de cada campo), eliminó (con la justificación) o restauró un registro. Ver sección 6.
 - El selector de norma base muestra solo normas no eliminadas.
 
 **Recomendaciones para la versión PHP**
 1. **Norma base eliminada.** Si la norma base de un registro se elimina, el selector de edición ya no la muestra. Al guardar ese registro, quedaría desvinculado sin aviso. En el selector hay que incluir la norma actual del registro aunque esté eliminada. Hoy no hay casos.
 2. **Registros sin fecha.** La fecha es opcional. En Postgres los registros sin fecha salen primero en la lista y en MariaDB saldrían al final. Hoy todos tienen fecha, pero conviene definir dónde deben ir.
-3. **Corregir errores.** Como no se puede eliminar un registro equivocado, se podría agregar eliminar (con justificación, como las normas) y/o registrar los cambios de la Bitácora en el Historial.
-4. **Tipo** es texto libre, pero en la práctica se usan 3 valores. Se podría convertir en un selector (Circular, Ley modificatoria, Pliego técnico, Otro).
+3. **Tipo** es texto libre, pero en la práctica se usan 3 valores. Se podría convertir en un selector (Circular, Ley modificatoria, Pliego técnico, Otro).
 
 ### 4.6 Vigilancia normativa
 Lista de fuentes, cada una con "Editar" (desplegable) y "Eliminar". Formulario "Agregar fuente".
 
 ### 4.7 Historial de cambios
-Lista de todos los eventos (más reciente primero; la app muestra los últimos 300). Cada uno: insignia de tipo, enlace a la norma, resumen, fecha-hora y usuario. Si es una edición: desplegable "Ver detalle de los cambios" con tabla Campo · Antes · Ahora.
+Lista de todos los eventos (más reciente primero; la app muestra los últimos 300). Cada uno: insignia de tipo, enlace a la norma (eventos de normas) o enlace "Ver registro en la bitácora" (eventos de la Bitácora; así se llega a un registro eliminado para restaurarlo), resumen, fecha-hora y usuario. Si es una edición: desplegable "Ver detalle de los cambios" con tabla Campo · Antes · Ahora.
 
 ---
 
@@ -232,7 +234,9 @@ Una norma puede depender de otra (su **norma madre**) mediante `norma_madre_id`.
 
 ## 6. Historial de cambios — qué se registra
 
-Cada evento guarda: `tipo`, `requisito_id`, `codigo_normativo` (copia del momento), `usuario_nombre`, `resumen` y, en ediciones, `cambios`.
+Cada evento guarda: `tipo`, `usuario_nombre`, `resumen` y, en ediciones, `cambios`. Los eventos de normas guardan además `requisito_id` y `codigo_normativo` (copia del momento); los de la Bitácora guardan `cambio_normativo_id`.
+
+**Normas**
 
 | Evento | `tipo` | Resumen |
 |---|---|---|
@@ -242,6 +246,17 @@ Cada evento guarda: `tipo`, `requisito_id`, `codigo_normativo` (copia del moment
 | Eliminar norma | `Eliminación de norma` | `Eliminó la norma «CÓDIGO» (NOMBRE OFICIAL). Justificación: TEXTO` |
 | Restaurar norma | `Restauración de norma` | `Restauró la norma «CÓDIGO» (previamente eliminada).` |
 
+**Bitácora** (REGISTRO = el "Número / código" del registro; si no tiene, su "Nombre")
+
+| Evento | `tipo` | Resumen |
+|---|---|---|
+| Registrar | `Registro en bitácora` | `Registró en la bitácora «REGISTRO».` |
+| Editar | `Edición en bitácora` | `Editó «Campo 1», «Campo 2» del registro «REGISTRO» de la bitácora.` |
+| Eliminar | `Eliminación en bitácora` | `Eliminó de la bitácora el registro «REGISTRO». Justificación: TEXTO` |
+| Restaurar | `Restauración en bitácora` | `Restauró en la bitácora el registro «REGISTRO» (previamente eliminado).` |
+
+Los eventos de la Bitácora aparecen en la página Historial de cambios, no en el historial de la ficha de la norma.
+
 **Ediciones**:
 - Se compara el valor anterior con el nuevo, campo por campo. Solo se registran los que cambiaron. **Si no cambió nada, no se registra evento.**
 - `cambios` es un JSON: `[{"campo": "prioridad", "etiqueta": "Prioridad", "antes": "Media", "despues": "Alta"}, ...]`.
@@ -249,9 +264,10 @@ Cada evento guarda: `tipo`, `requisito_id`, `codigo_normativo` (copia del moment
 - Áreas: se muestran como lista separada por comas, ej. `Calidad, SST`.
 
 Etiquetas de campo usadas en `cambios`:
-Código normativo · Nombre oficial · Bloque temático · Estado · Aplicabilidad · Rango jurídico · Nivel de vigilancia · De qué se trata · Requisito o artículo clave · Fuente a verificar · Cómo demostrar cumplimiento · Frecuencia de revisión · Organismo fiscalizador · Prioridad · Norma madre · Tipo de relación · Áreas.
+- **Normas**: Código normativo · Nombre oficial · Bloque temático · Estado · Aplicabilidad · Rango jurídico · Nivel de vigilancia · De qué se trata · Requisito o artículo clave · Fuente a verificar · Cómo demostrar cumplimiento · Frecuencia de revisión · Organismo fiscalizador · Prioridad · Norma madre · Tipo de relación · Áreas.
+- **Bitácora**: Requisito base (se guarda el código de la norma, no su ID) · Fecha (formato `DD-MM-AAAA`) · Tipo · Número / código · Nombre · Norma o parte que actualiza · Qué cambió / materia · Impacto en DSS · Acción / nota.
 
-Los cambios en Bitácora y Vigilancia **no** se registran en el historial.
+Los cambios en Vigilancia normativa **no** se registran en el historial.
 
 ---
 
@@ -378,7 +394,7 @@ Formato: fondo / texto.
 | Evaluación | Cumple: verde · Cumple parcialmente: ámbar `#fef3c7` / `#92400e` · No cumple: rojo `#fee2e2` / `#991b1b` · No aplica: gris · Por evaluar: celeste · Sin evaluar: gris |
 | Prioridad | Crítica: rojo · Alta: naranjo `#ffedd5` / `#9a3412` · Media: ámbar · Baja: gris |
 | Impacto (Bitácora) | Sí: verde · No aplica: gris · Aplicación condicionada: ámbar · Aplicación indirecta: celeste |
-| Tipo de evento (Historial) | Creada: verde · Editada: celeste · Revisión registrada: ámbar · Eliminada: rojo · Restaurada: verde |
+| Tipo de evento (Historial) | Creada / Bitácora: registro nuevo: verde · Editada / Bitácora: registro editado: celeste · Revisión registrada: ámbar · Eliminada / Bitácora: registro eliminado: rojo · Restaurada / Bitácora: registro restaurado: verde |
 | Bloque temático (ficha) | Fondo teal suave / texto teal oscuro |
 | Vigilancia y Área | Fondo gris muy suave / texto normal |
 

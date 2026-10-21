@@ -39,6 +39,10 @@ const ENUMS: Record<string, Record<string, string>> = {
     RegistroEvaluacion: "Registro de evaluación",
     EliminacionRequisito: "Eliminación de norma",
     RestauracionRequisito: "Restauración de norma",
+    CreacionCambio: "Registro en bitácora",
+    EdicionCambio: "Edición en bitácora",
+    EliminacionCambio: "Eliminación en bitácora",
+    RestauracionCambio: "Restauración en bitácora",
   },
 };
 
@@ -150,12 +154,13 @@ async function main() {
     "cambio_normativo",
     [
       "id", "fecha", "tipo", "numero_codigo", "nombre", "norma_o_parte_que_actualiza",
-      "requisito_base_id", "que_cambio", "impacto", "nota", "created_at", "updated_at",
+      "requisito_base_id", "que_cambio", "impacto", "nota", "eliminado_en", "created_at", "updated_at",
     ],
     cambios.map((c) => [
       sql(c.id), sql(c.fecha, "fecha"), sql(c.tipo), sql(c.numeroCodigo), sql(c.nombre),
       sql(c.normaOParteQueActualiza), sql(c.requisitoBaseId), sql(c.queCambio),
-      sql(en("impactoCambio", c.impacto)), sql(c.nota), sql(c.createdAt, "fechaHora"), sql(c.updatedAt, "fechaHora"),
+      sql(en("impactoCambio", c.impacto)), sql(c.nota), sql(c.eliminadoEn, "fechaHora"),
+      sql(c.createdAt, "fechaHora"), sql(c.updatedAt, "fechaHora"),
     ]),
   );
 
@@ -172,9 +177,13 @@ async function main() {
   const historial = await prisma.historialCambio.findMany({ orderBy: { createdAt: "asc" } });
   insertar(
     "historial_cambio",
-    ["id", "tipo", "requisito_id", "codigo_normativo", "usuario_nombre", "resumen", "cambios", "created_at"],
+    [
+      "id", "tipo", "requisito_id", "cambio_normativo_id", "codigo_normativo", "usuario_nombre", "resumen",
+      "cambios", "created_at",
+    ],
     historial.map((h) => [
-      sql(h.id), sql(en("tipoEventoHistorial", h.tipo)), sql(h.requisitoId), sql(h.codigoNormativo),
+      sql(h.id), sql(en("tipoEventoHistorial", h.tipo)), sql(h.requisitoId), sql(h.cambioNormativoId),
+      sql(h.codigoNormativo),
       sql(h.usuarioNombre), sql(h.resumen), sql(h.cambios, "json"), sql(h.createdAt, "fechaHora"),
     ]),
   );

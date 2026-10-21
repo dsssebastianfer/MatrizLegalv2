@@ -119,6 +119,8 @@ CREATE TABLE cambio_normativo (
   que_cambio                  TEXT         NULL,
   impacto                     ENUM('Sí', 'No aplica', 'Aplicación condicionada', 'Aplicación indirecta') NOT NULL,
   nota                        TEXT         NULL,
+  -- Borrado suave: con fecha = registro eliminado (oculto en la Bitácora y en la ficha).
+  eliminado_en                DATETIME(3)  NULL,
   created_at                  DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at                  DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
   PRIMARY KEY (id),
@@ -147,8 +149,11 @@ CREATE TABLE fuente_vigilancia (
 -- -----------------------------------------------------------------------------
 CREATE TABLE historial_cambio (
   id               CHAR(36)     NOT NULL,
-  tipo             ENUM('Creación de norma', 'Edición de norma', 'Registro de evaluación', 'Eliminación de norma', 'Restauración de norma') NOT NULL,
+  tipo             ENUM('Creación de norma', 'Edición de norma', 'Registro de evaluación', 'Eliminación de norma', 'Restauración de norma',
+                        'Registro en bitácora', 'Edición en bitácora', 'Eliminación en bitácora', 'Restauración en bitácora') NOT NULL,
   requisito_id     CHAR(36)     NULL,
+  -- Solo en eventos de la Bitácora: el registro afectado.
+  cambio_normativo_id CHAR(36)  NULL,
   -- Copia del código al momento del evento (legible aunque la norma cambie).
   codigo_normativo VARCHAR(500) NULL,
   usuario_nombre   VARCHAR(255) NOT NULL,
@@ -158,6 +163,8 @@ CREATE TABLE historial_cambio (
   created_at       DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   PRIMARY KEY (id),
   KEY ix_historial_requisito (requisito_id),
+  KEY ix_historial_cambio_normativo (cambio_normativo_id),
   KEY ix_historial_created_at (created_at),
-  CONSTRAINT fk_historial_requisito FOREIGN KEY (requisito_id) REFERENCES requisito (id) ON DELETE SET NULL
+  CONSTRAINT fk_historial_requisito FOREIGN KEY (requisito_id) REFERENCES requisito (id) ON DELETE SET NULL,
+  CONSTRAINT fk_historial_cambio_normativo FOREIGN KEY (cambio_normativo_id) REFERENCES cambio_normativo (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
