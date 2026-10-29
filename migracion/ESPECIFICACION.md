@@ -5,7 +5,53 @@ Este documento describe qué hace la app actual (Next.js + Postgres) para que pu
 - `01_schema_mariadb.sql` — estructura de la base en MariaDB.
 - `02_datos_mariadb.sql` — todos los datos actuales (se entrega aparte, no está en el repositorio).
 
-La app original sigue disponible como referencia visual en https://matriz-legal-dss-psi.vercel.app hasta que la versión PHP esté lista. El código fuente completo está en https://github.com/dsssebastianfer/MatrizLegalv2.
+La app original sigue disponible como referencia visual en https://matriz-legal-dss-psi.vercel.app hasta que la versión PHP esté lista. El código fuente completo está en https://github.com/dsssebastianfer/MatrizLegalv2 (repositorio privado: hay que pedir acceso).
+
+---
+
+## 0. Instrucciones para quien construya la app
+
+Este documento está pensado para entregárselo a Claude (u otro desarrollador) junto con los dos archivos SQL. **El objetivo** es construir desde cero la Matriz Legal como un módulo más de la página de gestión de DSS (PHP 8 + MariaDB), con el mismo comportamiento que se describe aquí y usando el login, la estructura y el estilo que ya tiene ese sistema.
+
+### Antes de programar: conocer el sistema de DSS
+Revisar el código del sistema existente (o preguntarle al administrador) y tener claro:
+1. **Login**: cómo se obtiene el usuario con sesión iniciada (variable de sesión, función, clase) y de dónde sale su nombre. La Matriz **no** debe tener login ni tabla de usuarios propios (sección 2).
+2. **Estructura**: si usa un framework o PHP plano, dónde van las páginas, cómo se enrutan y cómo se agrega una opción al menú.
+3. **Base de datos**: cómo se conecta hoy a MariaDB (PDO, mysqli, clase propia) y si las tablas llevan algún prefijo o convención de nombres.
+4. **Estilo**: qué CSS o componentes usa, para que la Matriz se vea como el resto del sitio (sección 8).
+5. **Permisos**: si todos los usuarios con sesión pueden usar la Matriz o solo algunos.
+
+Si algo de esto no se puede averiguar, preguntarle al administrador antes de suponer.
+
+### Orden de construcción sugerido
+1. Crear la base y cargar los datos (sección 1). Verificar los conteos (sección 9).
+2. **Matriz** (4.2): listado agrupado por bloque, con la jerarquía de normas (5.5), y después los filtros.
+3. **Ficha de la norma** (4.3), primero solo lectura.
+4. **Crear/editar norma** (4.4) y edición rápida ✏️ (5.2), registrando cada cambio en el **Historial** (sección 6) desde el principio.
+5. **Evaluación de Cumplimiento** (4.3 y 5.3), incluido el bloqueo cuando la norma es "No aplica".
+6. **Eliminar/restaurar normas** (5.4).
+7. **Bitácora** (4.5) con su eliminar/restaurar y su historial.
+8. **Historial de cambios** (4.7), **Vigilancia normativa** (4.6) y **Dashboard** (4.1).
+9. Tooltips y textos de ayuda (sección 7) y ajustes visuales (sección 8).
+
+### Reglas que no se pueden romper
+- **Normas y registros de la Bitácora nunca se borran de verdad**: se usa borrado suave (`eliminado_en`), con justificación obligatoria y opción de restaurar.
+- **Evaluaciones e historial nunca se editan ni se borran**: solo se agregan filas.
+- **Toda acción sobre normas y Bitácora genera su evento en el historial**, con el nombre del usuario de DSS y, en las ediciones, el detalle antes/después.
+- **Los valores de los `ENUM` se usan tal cual** (con espacios y acentos).
+- **Las fechas/horas están en UTC**: hay que convertirlas a hora de Chile para mostrarlas.
+- **Los textos visibles** (etiquetas, tooltips, avisos) se copian literal de este documento.
+
+### Recomendaciones de mejora
+En las secciones 4.1 (Dashboard), 4.5 (Bitácora) y 5.5 (normas anidadas) hay recomendaciones sobre cosas que la app actual no controla bien. Antes de implementarlas, confirmar con el administrador cuáles aplicar.
+
+### Al terminar, verificar
+- Los conteos de la sección 9 coinciden.
+- Para tres normas al azar, la ficha muestra lo mismo que la app original.
+- Las normas anidadas se ven como en la app original, incluida una hija que está en otro bloque que su madre (ej. la Ley Karin, sección 5.5).
+- Una norma "No aplica" muestra el aviso gris y no deja registrar evaluaciones.
+- Al crear, editar, eliminar y restaurar una norma y un registro de la Bitácora, cada acción aparece en el Historial con el usuario correcto.
+- Los acentos se ven bien en toda la app (ej. "Crítica", "Transición").
 
 ---
 
