@@ -11,7 +11,35 @@ La app original sigue disponible como referencia visual en https://matriz-legal-
 
 ## 0. Instrucciones para quien construya la app
 
-Este documento está pensado para entregárselo a Claude (u otro desarrollador) junto con los dos archivos SQL. **El objetivo** es construir desde cero la Matriz Legal como un módulo más de la página de gestión de DSS (PHP 8 + MariaDB), con el mismo comportamiento que se describe aquí y usando el login, la estructura y el estilo que ya tiene ese sistema.
+Este documento está pensado para entregárselo a Claude (u otro desarrollador) junto con el resto del paquete. **El objetivo** es construir desde cero la Matriz Legal como un módulo más de la página de gestión de DSS (PHP 8 + MariaDB), con el mismo comportamiento que se describe aquí y usando el login, la estructura y el estilo que ya tiene ese sistema.
+
+### Archivos del paquete
+| Archivo | Para qué |
+|---|---|
+| `ESPECIFICACION.md` | Este documento: qué hace la app y cómo construirla. |
+| `01_schema_mariadb.sql` | Crea las tablas en MariaDB. |
+| `02_datos_mariadb.sql` | Carga todos los datos actuales. |
+| `codigo_fuente_matriz_legal.zip` | Código de la app actual (Next.js + TypeScript), como **referencia**. |
+
+### Cómo usar el código de referencia
+La app nueva es PHP, así que el código no se copia: se usa para ver **exactamente** cómo resolví cada cosa y replicarlo. Si este documento y el código no coinciden, manda el código, salvo en lo que este documento dice explícitamente que cambia (login, usuarios, recomendaciones aprobadas). Archivos clave:
+
+| Tema | Archivo en el zip |
+|---|---|
+| Estructura de datos original | `prisma/schema.prisma` |
+| Matriz: filtros, búsqueda y árbol de normas anidadas | `src/lib/data/requisitos.ts` (`getMatriz`, `construirArbol`) y `src/app/matriz/page.tsx` |
+| Acordeón de bloques temáticos | `src/components/AcordeonMatriz.tsx` |
+| Ficha de la norma (secciones, ✏️, evaluación, avisos) | `src/app/requisitos/[id]/page.tsx` y `src/components/EditableSection.tsx` |
+| Crear / editar / eliminar / restaurar normas | `src/lib/actions/requisitos.ts`, `src/components/RequisitoForm.tsx`, `src/app/requisitos/[id]/editar/page.tsx` |
+| Historial: qué se registra y cómo se arma el antes/después | `src/lib/historial.ts` |
+| Bitácora | `src/lib/actions/cambios.ts`, `src/app/bitacora/` |
+| Evaluaciones y "estado actual" | `src/lib/data/evaluaciones.ts`, `src/lib/actions/evaluaciones.ts` |
+| Dashboard | `src/lib/data/dashboard.ts`, `src/app/page.tsx` |
+| Textos de ayuda, etiquetas y colores | `src/lib/labels.ts` |
+| Tooltips | `src/components/Tooltip.tsx` |
+| Estilos base (botones, títulos, campos) | `src/app/globals.css` |
+
+**No replicar** del código: el login (`src/app/login/`, `src/proxy.ts`, `src/lib/actions/auth.ts`, `src/lib/actuandoComo.ts`) ni la página de Usuarios (`src/app/usuarios/`). La app nueva usa el login de DSS.
 
 ### Antes de programar: conocer el sistema de DSS
 Revisar el código del sistema existente (o preguntarle al administrador) y tener claro:

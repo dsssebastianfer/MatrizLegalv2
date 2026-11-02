@@ -47,5 +47,6 @@ next-env.d.ts
 # claude code (estado local del agente)
 .claude/
 
-# exportación de datos para la migración (información interna, se entrega aparte)
+# exportación de datos y copia del código para la migración (se entregan aparte)
 migracion/02_datos_mariadb.sql
+migracion/codigo_fuente_matriz_legal.zip
